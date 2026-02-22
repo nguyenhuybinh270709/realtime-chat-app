@@ -3,6 +3,7 @@ import { ChatMain } from "@/pages/home/components/chat-main/ChatMain";
 import Home from "@/pages/home/Home";
 import { Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
+import SignUp from "@/pages/signup/SignUp";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route index element={<NoConversationSelected />} />
           <Route path="conversation/:id" element={<ChatMain />} />
         </Route>
+        <Route path="/signup" element={<SignUp />} />
       </Routes>
     </div>
   );
