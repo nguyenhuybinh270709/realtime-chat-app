@@ -1,8 +1,21 @@
+import { NoConversationSelected } from "@/pages/home/components/chat-main/NoConversationSelected";
+import { ChatMain } from "@/pages/home/components/chat-main/ChatMain";
+import Home from "@/pages/home/Home";
+import { Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
+
 function App() {
   return (
-    <>
-      <h1 className=" text-center text-6xl fw-bold">Hello World</h1>
-    </>
+    <div className="h-dvh overflow-hidden">
+      <Toaster position="top-right" richColors closeButton />
+
+      <Routes>
+        <Route path="/" element={<Home />}>
+          <Route index element={<NoConversationSelected />} />
+          <Route path="conversation/:id" element={<ChatMain />} />
+        </Route>
+      </Routes>
+    </div>
   );
 }
 
