@@ -4,6 +4,7 @@ import Home from "@/pages/home/Home";
 import { Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import SignUp from "@/pages/signup/SignUp";
+import Login from "@/pages/login/Login";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="conversation/:id" element={<ChatMain />} />
         </Route>
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </div>
   );
