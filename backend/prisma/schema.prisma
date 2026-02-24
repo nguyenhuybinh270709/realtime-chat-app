@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Gender {
+  male
+  female
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+model User {
+  id             String  @id @default(uuid())
+  username       String  @unique
+  displayName    String
+  hashedPassword String
+  gender         Gender
+  profileImage   String?
+
+  // Relations
+  messages                 Message[]
+  conversationParticipants ConversationParticipant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Conversation {
+  id                 String    @id @default(uuid())
+  conversationName   String?
+  isGroup            Boolean   @default(false)
+  lastMessagePreview String?
+  lastMessageAt      DateTime?
+
+  // Relations
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id   String @id @default(uuid())
+  role Role   @default(MEMBER)
+
+  // Foreign Keys & Relations
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conversationId])
+  @@index([conversationId])
+}
+
+model Message {
+  id   String @id @default(uuid())
+  body String
+
+  // Foreign Keys & Relations
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+}

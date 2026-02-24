@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2023",
 
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
 
     "strict": true,
-    "isolatedModules": true,
-
     "esModuleInterop": true,
+
+    "isolatedModules": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
@@ -20,5 +20,5 @@
       "@/*": ["*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["**/*.ts"]
 }
