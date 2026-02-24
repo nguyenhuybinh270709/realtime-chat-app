@@ -32,3 +32,8 @@ export const signUpSchema = z
     error: "Passwords do not match.",
     path: ["confirmPassword"],
   });
+
+export const loginSchema = z.object({
+  username: usernameSchema,
+  password: passwordSchema,
+});
