@@ -10,7 +10,7 @@ export const signUp = async (req: Request, res: Response) => {
     const result = signUpSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({ error: z.treeifyError(result.error) });
+      return res.status(400).json({ error: z.flattenError(result.error) });
     }
 
     const { username, displayName, password, gender } = result.data;
@@ -62,7 +62,7 @@ export const login = async (req: Request, res: Response) => {
     const result = loginSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({ error: z.treeifyError(result.error) });
+      return res.status(400).json({ error: z.flattenError(result.error) });
     }
 
     const { username, password } = result.data;
