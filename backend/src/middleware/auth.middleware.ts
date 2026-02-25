@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { authUserSelect } from "@/types/express";
+import { authUserSelect } from "@/types/auth";
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 

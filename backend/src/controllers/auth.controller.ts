@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { generateToken } from "@/utils/generateToken";
 import { loginSchema, signUpSchema } from "@/schema/auth.schema";
 import z from "zod";
+import { authUserSelect } from "@/types/auth";
 
 export const signUp = async (req: Request, res: Response) => {
   try {
@@ -36,17 +37,12 @@ export const signUp = async (req: Request, res: Response) => {
         gender: gender,
         profileImage: profileImage,
       },
+      select: authUserSelect,
     });
 
     generateToken(newUser.id, res);
 
-    return res.status(201).json({
-      id: newUser.id,
-      username: newUser.username,
-      displayName: newUser.displayName,
-      gender: newUser.gender,
-      profileImage: newUser.profileImage,
-    });
+    return res.status(201).json(newUser);
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.log("Error in signUp controller: ", error.message);
@@ -67,35 +63,53 @@ export const login = async (req: Request, res: Response) => {
 
     const { username, password } = result.data;
 
-    const existingUser = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { username: username },
+      select: {
+        ...authUserSelect,
+        hashedPassword: true,
+      },
     });
 
-    if (!existingUser) {
+    if (!user) {
       return res.status(401).json({ error: "Invalid username or password" });
     }
 
     const isPasswordCorrect = await bcrypt.compare(
       password,
-      existingUser.hashedPassword,
+      user.hashedPassword,
     );
 
     if (!isPasswordCorrect) {
       return res.status(401).json({ error: "Invalid username or password" });
     }
 
-    generateToken(existingUser.id, res);
+    generateToken(user.id, res);
 
-    return res.status(200).json({
-      id: existingUser.id,
-      username: existingUser.username,
-      displayName: existingUser.displayName,
-      gender: existingUser.gender,
-      profileImage: existingUser.profileImage,
-    });
+    // Remove hashedPassword from response
+    const { hashedPassword: hashedPassword, ...userResponse } = user;
+
+    return res.status(200).json(userResponse);
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.log("Error in login controller: ", error.message);
+    } else {
+      console.log("Unknown error: ", error);
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    return res.status(200).json(req.user);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.log("Error in getCurrentUser controller: ", error.message);
     } else {
       console.log("Unknown error: ", error);
     }

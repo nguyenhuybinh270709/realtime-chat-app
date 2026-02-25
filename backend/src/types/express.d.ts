@@ -1,16 +1,4 @@
-import type { Prisma } from "@/generated/prisma/client";
-
-export const authUserSelect = {
-  id: true,
-  username: true,
-  displayName: true,
-  gender: true,
-  profileImage: true,
-  createdAt: true,
-  updatedAt: true,
-} satisfies Prisma.UserSelect;
-
-export type AuthUser = Prisma.UserGetPayload<{ select: typeof authUserSelect }>;
+import type { AuthUser } from "@/types/auth";
 
 declare global {
   namespace Express {
