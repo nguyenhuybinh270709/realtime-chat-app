@@ -116,3 +116,23 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const logout = (_req: Request, res: Response) => {
+  try {
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV !== "development",
+      path: "/",
+    });
+
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.log("Error in logout controller: ", error.message);
+    } else {
+      console.log("Unknown error: ", error);
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
