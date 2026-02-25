@@ -45,11 +45,11 @@ export const signUp = async (req: Request, res: Response) => {
     return res.status(201).json(newUser);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.log("Error in signUp controller: ", error.message);
+      console.error("Error in signUp controller: ", error.message);
     } else {
-      console.log("Unknown error: ", error);
+      console.error("Unknown error: ", error);
     }
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -92,11 +92,11 @@ export const login = async (req: Request, res: Response) => {
     return res.status(200).json(userResponse);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.log("Error in login controller: ", error.message);
+      console.error("Error in login controller: ", error.message);
     } else {
-      console.log("Unknown error: ", error);
+      console.error("Unknown error: ", error);
     }
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -109,11 +109,11 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     return res.status(200).json(req.user);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.log("Error in getCurrentUser controller: ", error.message);
+      console.error("Error in getCurrentUser controller: ", error.message);
     } else {
-      console.log("Unknown error: ", error);
+      console.error("Unknown error: ", error);
     }
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -129,10 +129,10 @@ export const logout = (_req: Request, res: Response) => {
     return res.status(200).json({ message: "Logged out successfully" });
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.log("Error in logout controller: ", error.message);
+      console.error("Error in logout controller: ", error.message);
     } else {
-      console.log("Unknown error: ", error);
+      console.error("Unknown error: ", error);
     }
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };

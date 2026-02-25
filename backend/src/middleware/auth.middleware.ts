@@ -43,10 +43,10 @@ export const requireAuth = async (
     }
 
     if (error instanceof Error) {
-      console.log("Error in requireAuth middleware: ", error.message);
+      console.error("Error in requireAuth middleware: ", error.message);
     } else {
-      console.log("Unknown error: ", error);
+      console.error("Unknown error: ", error);
     }
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
