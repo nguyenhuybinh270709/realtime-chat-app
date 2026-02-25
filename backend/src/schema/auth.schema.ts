@@ -1,18 +1,12 @@
 import z from "zod";
 
-const usernameSchema = z
-  .string()
-  .trim()
-  .min(2, "Username must be between 2 and 20 characters.")
-  .max(20, "Username must be between 2 and 20 characters.");
-
-const passwordSchema = z
-  .string()
-  .min(6, "Password must be at least 6 characters.");
-
 export const signUpSchema = z
   .object({
-    username: usernameSchema,
+    username: z
+      .string()
+      .trim()
+      .min(2, "Username must be between 2 and 20 characters.")
+      .max(20, "Username must be between 2 and 20 characters."),
 
     displayName: z
       .string()
@@ -20,7 +14,7 @@ export const signUpSchema = z
       .min(2, "Display name must be between 2 and 20 characters.")
       .max(20, "Display name must be between 2 and 20 characters."),
 
-    password: passwordSchema,
+    password: z.string().min(6, "Password must be at least 6 characters."),
 
     confirmPassword: z.string(),
 
@@ -34,6 +28,6 @@ export const signUpSchema = z
   });
 
 export const loginSchema = z.object({
-  username: usernameSchema,
-  password: passwordSchema,
+  username: z.string().trim().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
 });
