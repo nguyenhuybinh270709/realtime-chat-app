@@ -8,8 +8,8 @@ datasource db {
 }
 
 enum Gender {
-  male
-  female
+  MALE
+  FEMALE
 }
 
 enum Role {
@@ -24,6 +24,7 @@ model User {
   hashedPassword String
   gender         Gender
   profileImage   String?
+  bio            String?
 
   // Relations
   messages                 Message[]
