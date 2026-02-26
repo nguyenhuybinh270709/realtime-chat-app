@@ -9,10 +9,13 @@ import { Eye, EyeOff } from "lucide-react";
 import { signUpSchema } from "@/pages/signup/signUp.schema";
 import type z from "zod";
 import { mapZodErrors } from "@/lib/zod";
+import { useSignUp } from "@/hooks/mutations/useSignUp";
 
 type SignUpForm = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
+  const { mutate, isPending } = useSignUp();
+
   const [form, setForm] = useState<SignUpForm>({
     username: "",
     displayName: "",
@@ -46,7 +49,8 @@ export default function SignUp() {
     }
 
     setErrors({});
-    console.log("Signup data:", result.data);
+
+    mutate(result.data);
   };
 
   return (
@@ -168,8 +172,12 @@ export default function SignUp() {
 
               {/* Submit button */}
               <div className="pt-2">
-                <Button type="submit" className="w-full cursor-pointer">
-                  Sign Up
+                <Button
+                  type="submit"
+                  className="w-full cursor-pointer"
+                  disabled={isPending}
+                >
+                  {isPending ? "Signing Up..." : "Sign Up"}
                 </Button>
               </div>
 

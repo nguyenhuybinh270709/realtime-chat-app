@@ -11,7 +11,12 @@ export const signUp = async (req: Request, res: Response) => {
     const result = signUpSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({ error: z.flattenError(result.error) });
+      return res.status(400).json({
+        error: {
+          message: "Validation failed",
+          details: z.flattenError(result.error),
+        },
+      });
     }
 
     const { username, displayName, password, gender } = result.data;
@@ -21,7 +26,11 @@ export const signUp = async (req: Request, res: Response) => {
     });
 
     if (existingUser) {
-      return res.status(409).json({ error: "Username already exists" });
+      return res.status(409).json({
+        error: {
+          message: "Username already exists",
+        },
+      });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -49,7 +58,12 @@ export const signUp = async (req: Request, res: Response) => {
     } else {
       console.error("Unknown error: ", error);
     }
-    return res.status(500).json({ error: "Internal server error" });
+
+    return res.status(500).json({
+      error: {
+        message: "Internal server error",
+      },
+    });
   }
 };
 

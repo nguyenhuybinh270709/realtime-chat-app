@@ -8,13 +8,13 @@ datasource db {
 }
 
 enum Gender {
-  MALE
-  FEMALE
+  male
+  female
 }
 
 enum Role {
-  OWNER
-  MEMBER
+  owner
+  member
 }
 
 model User {
@@ -53,7 +53,7 @@ model Conversation {
 
 model ConversationParticipant {
   id   String @id @default(uuid())
-  role Role   @default(MEMBER)
+  role Role   @default(member)
 
   // Foreign Keys & Relations
   userId         String
