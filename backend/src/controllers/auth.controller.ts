@@ -72,7 +72,12 @@ export const login = async (req: Request, res: Response) => {
     const result = loginSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({ error: z.flattenError(result.error) });
+      return res.status(400).json({
+        error: {
+          message: "Validation failed",
+          details: z.flattenError(result.error),
+        },
+      });
     }
 
     const { username, password } = result.data;
@@ -86,7 +91,11 @@ export const login = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid username or password" });
+      return res.status(401).json({
+        error: {
+          message: "Invalid username or password",
+        },
+      });
     }
 
     const isPasswordCorrect = await bcrypt.compare(
@@ -95,7 +104,11 @@ export const login = async (req: Request, res: Response) => {
     );
 
     if (!isPasswordCorrect) {
-      return res.status(401).json({ error: "Invalid username or password" });
+      return res.status(401).json({
+        error: {
+          message: "Invalid username or password",
+        },
+      });
     }
 
     generateToken(user.id, res);
@@ -110,7 +123,12 @@ export const login = async (req: Request, res: Response) => {
     } else {
       console.error("Unknown error: ", error);
     }
-    return res.status(500).json({ error: "Internal server error" });
+
+    return res.status(500).json({
+      error: {
+        message: "Internal server error",
+      },
+    });
   }
 };
 

@@ -8,10 +8,13 @@ import { Eye, EyeOff } from "lucide-react";
 import type z from "zod";
 import { mapZodErrors } from "@/lib/zod";
 import { loginSchema } from "@/pages/login/login.schema";
+import { useLogin } from "@/hooks/mutations/useLogin";
 
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Login() {
+  const { mutate, isPending } = useLogin();
+
   const [form, setForm] = useState<LoginForm>({
     username: "",
     password: "",
@@ -40,7 +43,7 @@ export default function Login() {
     }
 
     setErrors({});
-    console.log("Login data:", result.data);
+    mutate(result.data);
   };
 
   return (
@@ -92,8 +95,12 @@ export default function Login() {
 
               {/* Submit button */}
               <div className="pt-2">
-                <Button type="submit" className="w-full cursor-pointer">
-                  Login
+                <Button
+                  type="submit"
+                  className="w-full cursor-pointer"
+                  disabled={isPending}
+                >
+                  {isPending ? "Logging in..." : "Login"}
                 </Button>
               </div>
 
