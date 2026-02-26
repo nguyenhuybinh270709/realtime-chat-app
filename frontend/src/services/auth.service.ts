@@ -24,3 +24,9 @@ export const loginAPI = async (data: LoginPayload) => {
 
   return res.data;
 };
+
+export const logoutAPI = async () => {
+  const res = await api.post("/auth/logout");
+
+  return res.data;
+};

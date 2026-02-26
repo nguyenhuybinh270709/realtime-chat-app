@@ -24,8 +24,11 @@ import { MOCK_CURRENT_USER } from "@/data/mockData";
 import { ProfileDialog } from "@/pages/home/components/dialog/ProfileDialog";
 import { SettingsDialog } from "@/pages/home/components/dialog/SettingsDialog";
 import { useState } from "react";
+import { useLogout } from "@/hooks/mutations/useLogout";
 
 export function UserMenu() {
+  const { mutate, isPending } = useLogout();
+
   const { theme, setTheme } = useTheme();
 
   const ThemeIcon = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
@@ -126,9 +129,13 @@ export function UserMenu() {
           <DropdownMenuSeparator />
 
           {/* Logout */}
-          <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+          <DropdownMenuItem
+            className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+            onClick={() => mutate()}
+            disabled={isPending}
+          >
             <LogOutIcon className="text-destructive mr-2 size-4" />
-            <span>Log out</span>
+            <span>{isPending ? "Logging out..." : "Log out"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

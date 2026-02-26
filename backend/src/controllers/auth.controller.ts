@@ -165,6 +165,10 @@ export const logout = (_req: Request, res: Response) => {
     } else {
       console.error("Unknown error: ", error);
     }
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({
+      error: {
+        message: "Internal server error",
+      },
+    });
   }
 };
