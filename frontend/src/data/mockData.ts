@@ -1,11 +1,3 @@
-export const MOCK_CURRENT_USER = {
-  id: "u1",
-  profilePicture:
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=MockCurrentUser",
-  displayName: "Mock Current User",
-  bio: "I am mock current user",
-};
-
 export const MOCK_CONVERSATIONS: Conversation[] = [
   {
     id: "c1",

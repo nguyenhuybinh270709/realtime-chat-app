@@ -30,3 +30,8 @@ export const logoutAPI = async () => {
 
   return res.data;
 };
+
+export const getCurrentUserAPI = async () => {
+  const res = await api.get("/auth/me");
+  return res.data;
+};

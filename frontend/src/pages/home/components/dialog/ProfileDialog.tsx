@@ -12,8 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { MOCK_CURRENT_USER } from "@/data/mockData";
+import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 import { useNotify } from "@/hooks/useNotify";
+import { X } from "lucide-react";
 import { useState } from "react";
 
 interface ProfileDialogProps {
@@ -22,10 +23,12 @@ interface ProfileDialogProps {
 }
 
 export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
+  const { data: user } = useGetCurrentUser();
+
   const notify = useNotify();
 
-  const [name, setName] = useState(MOCK_CURRENT_USER.displayName);
-  const [bio, setBio] = useState(MOCK_CURRENT_USER.bio);
+  const [name, setName] = useState(user?.displayName);
+  const [bio, setBio] = useState(user?.bio ?? "");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -41,14 +44,13 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
         {/* Dialog Body */}
         <div className="flex-1 min-h-0 px-6">
           <ScrollArea className="h-full w-full">
-            <div className="grid gap-6 py-4">
+            <div className="grid gap-6 py-4 px-5">
               {/* Avatar */}
               <div className="flex flex-col items-center gap-4">
                 <Avatar className="h-24 w-24 border-2 border-muted">
-                  <AvatarImage src={MOCK_CURRENT_USER.profilePicture} />
+                  <AvatarImage src={user?.profileImage || ""} />
                   <AvatarFallback>
-                    {MOCK_CURRENT_USER.displayName?.charAt(0).toUpperCase() ??
-                      "?"}
+                    {user?.displayName?.charAt(0).toUpperCase() ?? "?"}
                   </AvatarFallback>
                 </Avatar>
                 <Button
@@ -69,21 +71,52 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
                   onOpenChange(false);
                 }}
               >
+                {/* Display Name */}
                 <div className="grid gap-2">
                   <Label htmlFor="name">Display Name</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
+                  <div className="relative flex items-center">
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="pr-9"
+                    />
+                    {name && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 h-full w-9 hover:bg-transparent text-muted-foreground hover:text-foreground cursor-pointer"
+                        onClick={() => setName("")}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
+                {/* Bio */}
                 <div className="grid gap-2">
                   <Label htmlFor="bio">Bio</Label>
-                  <Textarea
-                    id="bio"
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                  />
+                  <div className="relative">
+                    <Textarea
+                      id="bio"
+                      placeholder="Tell us about yourself..."
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      className="pr-9 min-h-25 break-all"
+                    />
+                    {bio && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1 h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer"
+                        onClick={() => setBio("")}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </form>
             </div>

@@ -1,17 +1,15 @@
 import { getApiErrorMessage } from "@/lib/apiError";
+import { queryClient } from "@/lib/queryClient";
 import { signUpAPI } from "@/services/auth.service";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export const useSignUp = () => {
-  const navigate = useNavigate();
-
   return useMutation({
     mutationFn: signUpAPI,
-    onSuccess: () => {
+    onSuccess: (user) => {
       toast.success("Sign up successful");
-      navigate("/");
+      queryClient.setQueryData(["currentUser"], user);
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error));

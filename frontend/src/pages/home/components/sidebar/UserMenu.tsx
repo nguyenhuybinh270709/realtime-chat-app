@@ -20,13 +20,15 @@ import {
   Check,
 } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
-import { MOCK_CURRENT_USER } from "@/data/mockData";
 import { ProfileDialog } from "@/pages/home/components/dialog/ProfileDialog";
 import { SettingsDialog } from "@/pages/home/components/dialog/SettingsDialog";
 import { useState } from "react";
 import { useLogout } from "@/hooks/mutations/useLogout";
+import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 
 export function UserMenu() {
+  const { data: user } = useGetCurrentUser();
+
   const { mutate, isPending } = useLogout();
 
   const { theme, setTheme } = useTheme();
@@ -54,12 +56,12 @@ export function UserMenu() {
             className="w-full justify-start gap-2 px-2 cursor-pointer hover:bg-accent"
           >
             <Avatar className="size-7">
-              <AvatarImage src={MOCK_CURRENT_USER.profilePicture} />
+              <AvatarImage src={user?.profileImage || ""} />
               <AvatarFallback>
-                {MOCK_CURRENT_USER.displayName?.charAt(0)?.toUpperCase() ?? "?"}
+                {user?.displayName.charAt(0)?.toUpperCase() ?? "?"}
               </AvatarFallback>
             </Avatar>
-            <span className="font-medium">{MOCK_CURRENT_USER.displayName}</span>
+            <span className="font-medium">{user?.displayName}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-40" align="end" side="top">
