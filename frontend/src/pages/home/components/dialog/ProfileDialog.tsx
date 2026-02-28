@@ -12,23 +12,57 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { useUpdateProfile } from "@/hooks/mutations/useUpdateProfile";
 import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 import { useNotify } from "@/hooks/useNotify";
+import { mapZodErrors } from "@/lib/zod";
+import { updateProfileSchema } from "@/pages/home/schema/updateProfile.schema";
 import { X } from "lucide-react";
 import { useState } from "react";
+import type z from "zod";
 
 interface ProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+type UpdateProfileForm = z.infer<typeof updateProfileSchema>;
+
 export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
   const { data: user } = useGetCurrentUser();
 
+  const { mutate, isPending } = useUpdateProfile();
+
   const notify = useNotify();
 
-  const [name, setName] = useState(user?.displayName);
-  const [bio, setBio] = useState(user?.bio ?? "");
+  const [form, setForm] = useState<UpdateProfileForm>({
+    displayName: user.displayName ?? "",
+    bio: user.bio ?? "",
+  });
+
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof UpdateProfileForm, string>>
+  >({});
+
+  const handleChange = (field: keyof UpdateProfileForm, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+    setErrors((prev) => (prev[field] ? { ...prev, [field]: "" } : prev));
+  };
+
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const result = updateProfileSchema.safeParse(form);
+
+    if (!result.success) {
+      setErrors(mapZodErrors<UpdateProfileForm>(result.error.issues));
+      return;
+    }
+
+    setErrors({});
+    mutate(result.data);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -43,56 +77,45 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
 
         {/* Dialog Body */}
         <div className="flex-1 min-h-0 px-6">
-          <ScrollArea className="h-full w-full">
-            <div className="grid gap-6 py-4 px-5">
-              {/* Avatar */}
-              <div className="flex flex-col items-center gap-4">
-                <Avatar className="h-24 w-24 border-2 border-muted">
-                  <AvatarImage src={user?.profileImage || ""} />
-                  <AvatarFallback>
-                    {user?.displayName?.charAt(0).toUpperCase() ?? "?"}
-                  </AvatarFallback>
-                </Avatar>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="relative overflow-hidden cursor-pointer"
-                  onClick={notify.featureUnavailable}
-                >
-                  Change Avatar
-                </Button>
-              </div>
-
-              {/* Profile Form */}
-              <form
-                className="space-y-4"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  onOpenChange(false);
-                }}
-              >
+          <form className="flex flex-col h-full" onSubmit={handleSubmit}>
+            <ScrollArea className="flex-1 min-h-0">
+              <div className="grid gap-6 py-6 px-5">
+                {/* Avatar */}
+                <div className="flex flex-col items-center gap-4">
+                  <Avatar className="h-24 w-24 border-2 border-muted">
+                    <AvatarImage src={user?.profileImage} />
+                    <AvatarFallback>
+                      {user?.displayName?.charAt(0).toUpperCase() ?? "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="relative overflow-hidden cursor-pointer"
+                    onClick={notify.featureUnavailable}
+                  >
+                    Change Avatar
+                  </Button>
+                </div>
                 {/* Display Name */}
                 <div className="grid gap-2">
-                  <Label htmlFor="name">Display Name</Label>
+                  <Label htmlFor="displayName">Display Name</Label>
                   <div className="relative flex items-center">
                     <Input
-                      id="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      id="displayName"
+                      value={form.displayName}
+                      onChange={(e) =>
+                        handleChange("displayName", e.target.value)
+                      }
                       className="pr-9"
                     />
-                    {name && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 h-full w-9 hover:bg-transparent text-muted-foreground hover:text-foreground cursor-pointer"
-                        onClick={() => setName("")}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
+                  {errors.displayName && (
+                    <p className="text-sm text-destructive">
+                      {errors.displayName}
+                    </p>
+                  )}
                 </div>
                 {/* Bio */}
                 <div className="grid gap-2">
@@ -101,45 +124,49 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
                     <Textarea
                       id="bio"
                       placeholder="Tell us about yourself..."
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
+                      value={form.bio}
+                      onChange={(e) => handleChange("bio", e.target.value)}
                       className="pr-9 min-h-25 break-all"
                     />
-                    {bio && (
+                    {form.bio && (
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         className="absolute right-1 top-1 h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer"
-                        onClick={() => setBio("")}
+                        onClick={() => handleChange("bio", "")}
                       >
                         <X className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
+                  {errors.bio && (
+                    <p className="text-sm text-destructive">{errors.bio}</p>
+                  )}
                 </div>
-              </form>
-            </div>
-          </ScrollArea>
-        </div>
+              </div>
+            </ScrollArea>
 
-        {/* Dialog Footer */}
-        <DialogFooter className="p-4 border-t shrink-0 sm:justify-center items-center">
-          <Button
-            className="w-full sm:w-auto cursor-pointer"
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            className="w-full sm:w-auto cursor-pointer"
-            onClick={() => onOpenChange(false)}
-          >
-            Save changes
-          </Button>
-        </DialogFooter>
+            {/* Dialog Footer */}
+            <DialogFooter className="p-4 border-t shrink-0 sm:justify-center items-center">
+              <Button
+                type="button"
+                className="w-full sm:w-auto cursor-pointer"
+                variant="ghost"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="w-full sm:w-auto cursor-pointer"
+                disabled={isPending}
+              >
+                {isPending ? "Saving..." : "Save changes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
