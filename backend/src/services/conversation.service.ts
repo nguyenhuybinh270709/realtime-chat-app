@@ -3,6 +3,7 @@ import { Role } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { createConversationSchema } from "@/schema/conversation.schema";
 import z from "zod";
+import { tr } from "zod/locales";
 
 export const createConversationService = async (
   body: unknown,
@@ -84,6 +85,81 @@ export const createConversationService = async (
       isGroup,
       participants: {
         create: participantCreateInputs,
+      },
+    },
+  });
+
+  return conversation;
+};
+
+export const getConversationsService = async (currentUserId: string) => {
+  const conversations = await prisma.conversation.findMany({
+    where: {
+      participants: {
+        some: {
+          userId: currentUserId,
+        },
+      },
+    },
+    select: {
+      id: true,
+      conversationName: true,
+      isGroup: true,
+      lastMessagePreview: true,
+      lastMessageAt: true,
+      participants: {
+        where: {
+          userId: {
+            not: currentUserId,
+          },
+        },
+        select: {
+          userId: true,
+          user: {
+            select: {
+              displayName: true,
+              profileImage: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: [{ lastMessageAt: "desc" }, { createdAt: "desc" }],
+  });
+
+  return conversations;
+};
+
+export const getConversationByIdService = async (
+  currentUserId: string,
+  conversationId: string,
+) => {
+  const conversation = await prisma.conversation.findFirst({
+    where: {
+      id: conversationId,
+      participants: {
+        some: {
+          userId: currentUserId,
+        },
+      },
+    },
+    select: {
+      id: true,
+      conversationName: true,
+      isGroup: true,
+      lastMessagePreview: true,
+      lastMessageAt: true,
+      participants: {
+        select: {
+          role: true,
+          userId: true,
+          user: {
+            select: {
+              displayName: true,
+              profileImage: true,
+            },
+          },
+        },
       },
     },
   });
