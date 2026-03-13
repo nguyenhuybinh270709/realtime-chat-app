@@ -1,11 +1,6 @@
-import { prisma } from "@/lib/prisma";
 import type { NextFunction, Request, Response } from "express";
-import bcrypt from "bcrypt";
 import { generateToken } from "@/utils/generateToken";
-import { loginSchema } from "@/schema/auth.schema";
-import z from "zod";
-import { authUserSelect } from "@/types/auth";
-import { signUpService } from "@/services/auth.service";
+import { loginService, signUpService } from "@/services/auth.service";
 
 export const signUp = async (
   req: Request,
@@ -23,85 +18,31 @@ export const signUp = async (
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const result = loginSchema.safeParse(req.body);
-
-    if (!result.success) {
-      return res.status(400).json({
-        error: {
-          message: "Validation failed",
-          details: z.flattenError(result.error),
-        },
-      });
-    }
-
-    const { username, password } = result.data;
-
-    const user = await prisma.user.findUnique({
-      where: { username: username },
-      select: {
-        ...authUserSelect,
-        hashedPassword: true,
-      },
-    });
-
-    if (!user) {
-      return res.status(401).json({
-        error: {
-          message: "Invalid username or password",
-        },
-      });
-    }
-
-    const isPasswordCorrect = await bcrypt.compare(
-      password,
-      user.hashedPassword,
-    );
-
-    if (!isPasswordCorrect) {
-      return res.status(401).json({
-        error: {
-          message: "Invalid username or password",
-        },
-      });
-    }
+    const user = await loginService(req.body);
 
     generateToken(user.id, res);
 
-    // Remove hashedPassword from response
-    const { hashedPassword: hashedPassword, ...userResponse } = user;
-
-    return res.status(200).json(userResponse);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error in login controller: ", error.message);
-    } else {
-      console.error("Unknown error: ", error);
-    }
-
-    return res.status(500).json({
-      error: {
-        message: "Internal server error",
-      },
-    });
+    return res.status(200).json(user);
+  } catch (error) {
+    next(error);
   }
 };
 
-export const getCurrentUser = async (req: Request, res: Response) => {
+export const getCurrentUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: "User not found" });
-    }
-
     return res.status(200).json(req.user);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error in getCurrentUser controller: ", error.message);
-    } else {
-      console.error("Unknown error: ", error);
-    }
-    return res.status(500).json({ error: "Internal server error" });
+  } catch (error) {
+    next(error);
   }
 };
 

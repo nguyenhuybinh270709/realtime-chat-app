@@ -1,6 +1,6 @@
 import { createError } from "@/errors/app.error";
 import { prisma } from "@/lib/prisma";
-import { signUpSchema } from "@/schema/auth.schema";
+import { loginSchema, signUpSchema } from "@/schema/auth.schema";
 import z from "zod";
 import bcrypt from "bcrypt";
 import { authUserSelect } from "@/types/auth";
@@ -43,4 +43,41 @@ export const signUpService = async (body: unknown) => {
   });
 
   return newUser;
+};
+
+export const loginService = async (body: unknown) => {
+  const parseResult = loginSchema.safeParse(body);
+
+  if (!parseResult.success) {
+    throw createError(
+      400,
+      "Validation failed",
+      z.flattenError(parseResult.error),
+    );
+  }
+
+  const { username, password } = parseResult.data;
+
+  const user = await prisma.user.findUnique({
+    where: { username: username },
+    select: {
+      ...authUserSelect,
+      hashedPassword: true,
+    },
+  });
+
+  if (!user) {
+    throw createError(401, "Invalid username or password");
+  }
+
+  const isPasswordCorrect = await bcrypt.compare(password, user.hashedPassword);
+
+  if (!isPasswordCorrect) {
+    throw createError(401, "Invalid username or password");
+  }
+
+  // Remove hashedPassword from response
+  const { hashedPassword: hashedPassword, ...userResponse } = user;
+
+  return userResponse;
 };
