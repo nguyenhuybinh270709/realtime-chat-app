@@ -37,6 +37,7 @@ model User {
 model Conversation {
   id                 String    @id @default(uuid())
   conversationName   String?
+  conversationImage  String?
   isGroup            Boolean   @default(false)
   lastMessagePreview String?
   lastMessageAt      DateTime?
