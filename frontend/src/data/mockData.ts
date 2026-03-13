@@ -1,36 +1,3 @@
-export const MOCK_CONVERSATIONS: Conversation[] = [
-  {
-    id: "c1",
-    displayName: "John Doe",
-    profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=JohnDoe`,
-  },
-  {
-    id: "c2",
-    displayName: "Jane Doe",
-    profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=JaneDoe",
-  },
-  {
-    id: "c3",
-    displayName: "Alice",
-    profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
-  },
-  {
-    id: "c4",
-    displayName: "Bob",
-    profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
-  },
-  {
-    id: "c5",
-    displayName: "Charlie",
-    profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
-  },
-  {
-    id: "c6",
-    displayName: "Lily",
-    profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lily",
-  },
-];
-
 export const MOCK_MESSAGES: Message[] = [
   {
     id: "m1",

@@ -1,20 +1,28 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useNotify } from "@/hooks/useNotify";
+import { getConversationDisplayInfo } from "@/utils/conversation";
 import { ChevronLeft, MoreVertical, Phone, Video } from "lucide-react";
-import { useOutletContext } from "react-router-dom";
 
 interface ChatMainHeaderProps {
   conversation: Conversation;
+  currentUserId: string;
   onBack: () => void;
+  toggleConversationInfo: () => void;
 }
 
-export function ChatMainHeader({ conversation, onBack }: ChatMainHeaderProps) {
+export function ChatMainHeader({
+  conversation,
+  currentUserId,
+  onBack,
+  toggleConversationInfo,
+}: ChatMainHeaderProps) {
   const notify = useNotify();
 
-  const { toggleConversationInfo } = useOutletContext<{
-    toggleConversationInfo: () => void;
-  }>();
+  const { isGroup, displayName, avatar } = getConversationDisplayInfo(
+    conversation,
+    currentUserId,
+  );
 
   return (
     <header className="h-16 border-b flex items-center px-4 gap-3 shrink-0">
@@ -30,16 +38,16 @@ export function ChatMainHeader({ conversation, onBack }: ChatMainHeaderProps) {
 
       {/* Avatar */}
       <Avatar className="h-10 w-10">
-        <AvatarImage src={conversation.profilePicture} />
+        <AvatarImage src={avatar} />
         <AvatarFallback>
-          {conversation.displayName?.charAt(0)?.toUpperCase() ?? "?"}
+          {displayName?.charAt(0)?.toUpperCase() ?? "?"}
         </AvatarFallback>
       </Avatar>
 
       {/* Info */}
       <div className="flex-1">
-        <p className="font-semibold text-sm">{conversation.displayName}</p>
-        <p className="text-xs text-muted-foreground">Offline</p>
+        <p className="font-semibold text-sm">{displayName}</p>
+        {!isGroup && <p className="text-xs text-muted-foreground">Offline</p>}
       </div>
 
       {/* Actions */}

@@ -10,3 +10,9 @@ export const updateProfileAPI = async (data: UpdateProfilePayload) => {
 
   return res.data;
 };
+
+export const getUserByUsernameAPI = async (username: string) => {
+  const res = await api.get(`/users/${username}`);
+
+  return res.data;
+};

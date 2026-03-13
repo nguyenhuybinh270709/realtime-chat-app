@@ -5,9 +5,14 @@ import { MessageBubble } from "@/pages/home/components/chat-main/MessageBubble";
 interface MessageListProps {
   messages: Message[];
   conversation: Conversation;
+  currentUserId: string;
 }
 
-export function MessageList({ messages, conversation }: MessageListProps) {
+export function MessageList({
+  messages,
+  conversation,
+  currentUserId,
+}: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -22,6 +27,7 @@ export function MessageList({ messages, conversation }: MessageListProps) {
             key={message.id}
             message={message}
             conversation={conversation}
+            currentUserId={currentUserId}
           />
         ))}
 

@@ -3,7 +3,6 @@ import { Role } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { createConversationSchema } from "@/schema/conversation.schema";
 import z from "zod";
-import { tr } from "zod/locales";
 
 export const createConversationService = async (
   body: unknown,
@@ -107,16 +106,13 @@ export const getConversationsService = async (currentUserId: string) => {
       isGroup: true,
       lastMessagePreview: true,
       lastMessageAt: true,
+      createdAt: true,
       participants: {
-        where: {
-          userId: {
-            not: currentUserId,
-          },
-        },
         select: {
-          userId: true,
+          role: true,
           user: {
             select: {
+              id: true,
               displayName: true,
               profileImage: true,
             },
@@ -149,20 +145,26 @@ export const getConversationByIdService = async (
       isGroup: true,
       lastMessagePreview: true,
       lastMessageAt: true,
+      createdAt: true,
       participants: {
         select: {
           role: true,
-          userId: true,
           user: {
             select: {
+              id: true,
               displayName: true,
               profileImage: true,
+              bio: true,
             },
           },
         },
       },
     },
   });
+
+  if (!conversation) {
+    throw createError(404, "Conversation not found");
+  }
 
   return conversation;
 };

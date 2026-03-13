@@ -1,5 +1,3 @@
-import { NoConversationSelected } from "@/pages/home/components/chat-main/NoConversationSelected";
-import { ChatMain } from "@/pages/home/components/chat-main/ChatMain";
 import Home from "@/pages/home/Home";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
@@ -25,11 +23,12 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={isAuthenticated ? <Home /> : <Navigate to={"/login"} />}
-        >
-          <Route index element={<NoConversationSelected />} />
-          <Route path="conversation/:id" element={<ChatMain />} />
-        </Route>
+          element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/conversations/:conversationId"
+          element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
+        />
         <Route
           path="/login"
           element={!isAuthenticated ? <Login /> : <Navigate to="/" />}

@@ -24,20 +24,19 @@ import { ProfileDialog } from "@/pages/home/components/dialog/ProfileDialog";
 import { SettingsDialog } from "@/pages/home/components/dialog/SettingsDialog";
 import { useState } from "react";
 import { useLogout } from "@/hooks/mutations/useLogout";
-import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 
-export function UserMenu() {
-  const { data: user } = useGetCurrentUser();
+interface UserMenuProps {
+  currentUser: User;
+}
 
+export function UserMenu({ currentUser }: UserMenuProps) {
   const { mutate, isPending } = useLogout();
-
   const { theme, setTheme } = useTheme();
-
-  const ThemeIcon = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
 
   const [activeDialog, setActiveDialog] = useState<
     "profile" | "settings" | null
   >(null);
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
 
   const handleDialogChange = (open: boolean) => {
     if (!open) {
@@ -45,8 +44,8 @@ export function UserMenu() {
     }
   };
 
-  const [themeOpen, setThemeOpen] = useState(false);
-
+  const CurrentThemeIcon =
+    theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
   return (
     <>
       <DropdownMenu>
@@ -56,12 +55,12 @@ export function UserMenu() {
             className="w-full justify-start gap-2 px-2 cursor-pointer hover:bg-accent"
           >
             <Avatar className="size-7">
-              <AvatarImage src={user?.profileImage || ""} />
+              <AvatarImage src={currentUser.profileImage || ""} />
               <AvatarFallback>
-                {user?.displayName.charAt(0)?.toUpperCase() ?? "?"}
+                {currentUser.displayName.charAt(0)?.toUpperCase() ?? "?"}
               </AvatarFallback>
             </Avatar>
-            <span className="font-medium">{user?.displayName}</span>
+            <span className="font-medium">{currentUser.displayName}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-40" align="end" side="top">
@@ -84,14 +83,17 @@ export function UserMenu() {
           </DropdownMenuItem>
 
           {/* Theme */}
-          <DropdownMenuSub open={themeOpen} onOpenChange={setThemeOpen}>
+          <DropdownMenuSub
+            open={isThemeMenuOpen}
+            onOpenChange={setIsThemeMenuOpen}
+          >
             <DropdownMenuSubTrigger
               className="cursor-pointer "
               onClick={() => {
-                setThemeOpen((prev) => !prev);
+                setIsThemeMenuOpen((prev) => !prev);
               }}
             >
-              <ThemeIcon className="mr-2 size-4" />
+              <CurrentThemeIcon className="mr-2 size-4" />
               <span>Theme</span>
             </DropdownMenuSubTrigger>
             {/* Theme Options */}
@@ -144,6 +146,7 @@ export function UserMenu() {
 
       {/* Profile Dialog */}
       <ProfileDialog
+        currentUser={currentUser}
         open={activeDialog === "profile"}
         onOpenChange={handleDialogChange}
       />

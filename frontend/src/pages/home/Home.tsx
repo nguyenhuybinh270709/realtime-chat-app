@@ -1,51 +1,62 @@
 import { useState } from "react";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Sidebar } from "@/pages/home/components/sidebar/Sidebar";
 import { ConversationInfo } from "@/pages/home/components/info/ConversationInfo";
-import { MOCK_CONVERSATIONS } from "@/data/mockData";
+import { useGetConversations } from "@/hooks/queries/useGetConversations";
+import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
+import { ChatMain } from "@/pages/home/components/chat-main/ChatMain";
+import { NoConversationSelected } from "@/pages/home/components/chat-main/NoConversationSelected";
+import AppLoader from "@/components/AppLoader";
 
 export default function Home() {
-  const { id } = useParams();
+  const { conversationId } = useParams();
 
-  const navigate = useNavigate();
+  const { data: conversations } = useGetConversations();
+  const { data: currentUser } = useGetCurrentUser();
 
-  const [showConversationInfo, setShowConversationInfo] = useState(false);
+  const [isConversationInfoOpen, setIsConversationInfoOpen] = useState(false);
 
-  const activeConversation = MOCK_CONVERSATIONS.find(
-    (conversation) => conversation.id === id,
+  const activeConversation = conversations?.find(
+    (conversation) => conversation.id === conversationId,
   );
+
+  if (!currentUser) return <AppLoader />;
 
   return (
     <div className="h-dvh flex overflow-hidden">
       {/* Sidebar */}
       <aside
-        className={`${id ? "hidden" : "flex"} lg:flex w-full lg:w-2/7 border-r shrink-0`}
+        className={`${conversationId ? "hidden" : "flex"} lg:flex w-full lg:w-2/7 border-r shrink-0`}
       >
-        <Sidebar />
+        <Sidebar
+          conversations={conversations ?? []}
+          currentUser={currentUser}
+          activeConversationId={conversationId}
+        />
       </aside>
 
-      {/* Main Chat Layout */}
-      <main
-        key={id}
-        className={`flex-1 min-w-0 ${id ? "flex" : "hidden"} lg:flex h-full relative`}
-      >
-        {/* Main Chat Area */}
-        <Outlet
-          context={{
-            onBack: () => navigate("/"),
-            toggleConversationInfo: () =>
-              setShowConversationInfo((prev) => !prev),
-          }}
-        />
+      {/* Main Chat */}
+      <main className="flex-1 min-w-0 flex h-full relative">
+        {conversationId ? (
+          <ChatMain
+            currentUserId={currentUser.id}
+            toggleConversationInfo={() =>
+              setIsConversationInfoOpen((prev) => !prev)
+            }
+          />
+        ) : (
+          <NoConversationSelected />
+        )}
 
         {/* Mobile Conversation Info */}
         {activeConversation && (
           <div
-            className={`lg:hidden absolute inset-0 z-50 bg-background transition-transform duration-300 ease-in-out ${showConversationInfo ? "translate-x-0" : "translate-x-full"}`}
+            className={`lg:hidden absolute inset-0 z-50 bg-background transition-transform duration-300 ease-in-out ${isConversationInfoOpen ? "translate-x-0" : "translate-x-full"}`}
           >
             <ConversationInfo
               conversation={activeConversation}
-              onClose={() => setShowConversationInfo(false)}
+              currentUserId={currentUser.id}
+              onClose={() => setIsConversationInfoOpen(false)}
             />
           </div>
         )}
@@ -54,12 +65,13 @@ export default function Home() {
       {/* Desktop Conversation Info */}
       {activeConversation && (
         <aside
-          className={`hidden lg:flex border-l shrink-0 transition-all duration-300 ease-in-out overflow-hidden ${showConversationInfo ? "w-80 opacity-100" : "w-0 opacity-0 border-l-0"}`}
+          className={`hidden lg:flex border-l shrink-0 transition-all duration-300 ease-in-out overflow-hidden ${isConversationInfoOpen ? "w-80 opacity-100" : "w-0 opacity-0 border-l-0"}`}
         >
           <div className="w-80 h-full shrink-0">
             <ConversationInfo
               conversation={activeConversation}
-              onClose={() => setShowConversationInfo(false)}
+              currentUserId={currentUser.id}
+              onClose={() => setIsConversationInfoOpen(false)}
             />
           </div>
         </aside>

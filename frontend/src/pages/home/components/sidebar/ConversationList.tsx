@@ -1,21 +1,30 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MOCK_CONVERSATIONS } from "@/data/mockData";
 import { ConversationItem } from "@/pages/home/components/sidebar/ConversationItem";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export function ConversationList() {
+interface ConversationListProps {
+  conversations: Conversation[];
+  currentUser: User;
+  activeConversationId?: string;
+}
+
+export function ConversationList({
+  conversations,
+  currentUser,
+  activeConversationId,
+}: ConversationListProps) {
   const navigate = useNavigate();
-  const { id } = useParams();
 
   return (
     <ScrollArea className="h-full w-full">
       <div className="p-2 space-y-1 bg-muted/40">
-        {MOCK_CONVERSATIONS.map((conversation) => (
+        {conversations.map((conversation) => (
           <ConversationItem
             key={conversation.id}
             conversation={conversation}
-            onClick={() => navigate(`/conversation/${conversation.id}`)}
-            active={conversation.id === id}
+            currentUserId={currentUser.id}
+            onClick={() => navigate(`/conversations/${conversation.id}`)}
+            active={conversation.id === activeConversationId}
           />
         ))}
       </div>

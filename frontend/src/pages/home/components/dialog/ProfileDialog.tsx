@@ -13,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateProfile } from "@/hooks/mutations/useUpdateProfile";
-import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 import { useNotify } from "@/hooks/useNotify";
 import { mapZodErrors } from "@/lib/zod";
 import { updateProfileSchema } from "@/pages/home/schema/updateProfile.schema";
@@ -22,22 +21,25 @@ import { useState } from "react";
 import type z from "zod";
 
 interface ProfileDialogProps {
+  currentUser: User;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 type UpdateProfileForm = z.infer<typeof updateProfileSchema>;
 
-export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
-  const { data: user } = useGetCurrentUser();
-
+export function ProfileDialog({
+  currentUser,
+  open,
+  onOpenChange,
+}: ProfileDialogProps) {
   const { mutate, isPending } = useUpdateProfile();
 
   const notify = useNotify();
 
   const [form, setForm] = useState<UpdateProfileForm>({
-    displayName: user.displayName ?? "",
-    bio: user.bio ?? "",
+    displayName: currentUser.displayName ?? "",
+    bio: currentUser.bio ?? "",
   });
 
   const [errors, setErrors] = useState<
@@ -83,9 +85,9 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
                 {/* Avatar */}
                 <div className="flex flex-col items-center gap-4">
                   <Avatar className="h-24 w-24 border-2 border-muted">
-                    <AvatarImage src={user?.profileImage} />
+                    <AvatarImage src={currentUser.profileImage ?? undefined} />
                     <AvatarFallback>
-                      {user?.displayName?.charAt(0).toUpperCase() ?? "?"}
+                      {currentUser.displayName?.charAt(0).toUpperCase() ?? "?"}
                     </AvatarFallback>
                   </Avatar>
                   <Button

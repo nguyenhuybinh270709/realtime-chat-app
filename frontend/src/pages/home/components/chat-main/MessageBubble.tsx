@@ -1,11 +1,22 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getConversationDisplayInfo } from "@/utils/conversation";
 
 interface MessageBubbleProps {
   message: Message;
   conversation: Conversation;
+  currentUserId: string;
 }
 
-export function MessageBubble({ message, conversation }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  conversation,
+  currentUserId,
+}: MessageBubbleProps) {
+  const { avatar, displayName } = getConversationDisplayInfo(
+    conversation,
+    currentUserId,
+  );
+
   return (
     <div
       className={`flex gap-3 ${
@@ -15,9 +26,9 @@ export function MessageBubble({ message, conversation }: MessageBubbleProps) {
       {/* Avatar */}
       {!message.fromMe && (
         <Avatar className="h-8 w-8">
-          <AvatarImage src={conversation.profilePicture} />
+          <AvatarImage src={avatar} />
           <AvatarFallback>
-            {conversation.displayName?.charAt(0)?.toUpperCase() ?? "?"}
+            {displayName?.charAt(0)?.toUpperCase() ?? "?"}
           </AvatarFallback>
         </Avatar>
       )}

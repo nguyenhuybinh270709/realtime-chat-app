@@ -1,26 +1,39 @@
-import { MOCK_CONVERSATIONS, MOCK_MESSAGES } from "@/data/mockData";
+import { MOCK_MESSAGES } from "@/data/mockData";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChatMainHeader } from "./ChatMainHeader";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
-import { MessageCircleMore, MessageSquarePlus } from "lucide-react";
+import { MessageSquarePlus } from "lucide-react";
+import { useGetConversationById } from "@/hooks/queries/useGetConversationById";
+import AppLoader from "@/components/AppLoader";
+import { ConversationNotFound } from "@/pages/home/components/chat-main/ConversationNotFound";
 
-export function ChatMain() {
+interface ChatMainProps {
+  currentUserId: string;
+  toggleConversationInfo: () => void;
+}
+
+export function ChatMain({
+  currentUserId,
+  toggleConversationInfo,
+}: ChatMainProps) {
   const navigate = useNavigate();
 
-  const { id: conversationId } = useParams();
+  const { conversationId } = useParams();
 
-  const conversation = MOCK_CONVERSATIONS.find(
-    (conversation) => conversation.id === conversationId,
-  );
+  const { data: conversation, isLoading } =
+    useGetConversationById(conversationId);
 
-  if (!conversation) {
+  if (isLoading) {
     return (
       <main className="flex flex-col flex-1 items-center justify-center space-y-5">
-        <MessageCircleMore className="size-20" />
-        <p className="text-3xl font-semibold">Conversation not found</p>
+        <AppLoader />
       </main>
     );
+  }
+
+  if (!conversation) {
+    return <ConversationNotFound />;
   }
 
   const messages = MOCK_MESSAGES.filter(
@@ -32,13 +45,19 @@ export function ChatMain() {
       {/* Chat Header */}
       <ChatMainHeader
         conversation={conversation}
+        currentUserId={currentUserId}
         onBack={() => navigate("/")}
+        toggleConversationInfo={toggleConversationInfo}
       />
 
       {/* Chat Messages */}
       <div className="flex-1 min-h-0">
         {messages.length > 0 ? (
-          <MessageList messages={messages} conversation={conversation} />
+          <MessageList
+            messages={messages}
+            conversation={conversation}
+            currentUserId={currentUserId}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground space-y-3">
             <div className="p-4 bg-secondary rounded-full">
