@@ -1,69 +1,25 @@
 import { prisma } from "@/lib/prisma";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { generateToken } from "@/utils/generateToken";
-import { loginSchema, signUpSchema } from "@/schema/auth.schema";
+import { loginSchema } from "@/schema/auth.schema";
 import z from "zod";
 import { authUserSelect } from "@/types/auth";
+import { signUpService } from "@/services/auth.service";
 
-export const signUp = async (req: Request, res: Response) => {
+export const signUp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const result = signUpSchema.safeParse(req.body);
-
-    if (!result.success) {
-      return res.status(400).json({
-        error: {
-          message: "Validation failed",
-          details: z.flattenError(result.error),
-        },
-      });
-    }
-
-    const { username, displayName, password, gender } = result.data;
-
-    const existingUser = await prisma.user.findUnique({
-      where: { username: username },
-    });
-
-    if (existingUser) {
-      return res.status(409).json({
-        error: {
-          message: "Username already exists",
-        },
-      });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const profileImage = `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
-
-    const newUser = await prisma.user.create({
-      data: {
-        username: username,
-        displayName: displayName,
-        hashedPassword: hashedPassword,
-        gender: gender,
-        profileImage: profileImage,
-      },
-      select: authUserSelect,
-    });
+    const newUser = await signUpService(req.body);
 
     generateToken(newUser.id, res);
 
     return res.status(201).json(newUser);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error in signUp controller: ", error.message);
-    } else {
-      console.error("Unknown error: ", error);
-    }
-
-    return res.status(500).json({
-      error: {
-        message: "Internal server error",
-      },
-    });
+  } catch (error) {
+    next(error);
   }
 };
 
