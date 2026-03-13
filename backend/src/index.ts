@@ -6,6 +6,7 @@ import cors from "cors";
 import { userRoutes } from "@/routes/user.route";
 import { conversationRoutes } from "@/routes/conversation.route";
 import { errorMiddleware } from "@/middleware/error.middleware";
+import { messageRoutes } from "@/routes/message.route";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/conversations", conversationRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.use(errorMiddleware);
 
