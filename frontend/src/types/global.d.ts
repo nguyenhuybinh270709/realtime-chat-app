@@ -20,7 +20,7 @@ type Participant = {
 
 type Conversation = {
   id: string;
-  conversationName: string;
+  conversationName: string | null;
   isGroup: boolean;
   lastMessagePreview: string | null;
   lastMessageAt: string | null;
@@ -29,7 +29,9 @@ type Conversation = {
 
 type Message = {
   id: string;
-  fromMe: boolean;
   body: string;
   conversationId: string;
+  senderId: string;
+
+  createdAt: string;
 };

@@ -1,5 +1,4 @@
-import { MOCK_MESSAGES } from "@/data/mockData";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ChatMainHeader } from "./ChatMainHeader";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
@@ -7,24 +6,26 @@ import { MessageSquarePlus } from "lucide-react";
 import { useGetConversationById } from "@/hooks/queries/useGetConversationById";
 import AppLoader from "@/components/AppLoader";
 import { ConversationNotFound } from "@/pages/home/components/chat-main/ConversationNotFound";
+import { useGetMessages } from "@/hooks/queries/useGetMessages";
 
 interface ChatMainProps {
   currentUserId: string;
+  conversationId: string;
   toggleConversationInfo: () => void;
 }
 
 export function ChatMain({
   currentUserId,
+  conversationId,
   toggleConversationInfo,
 }: ChatMainProps) {
   const navigate = useNavigate();
-
-  const { conversationId } = useParams();
-
-  const { data: conversation, isLoading } =
+  const { data: conversation, isLoading: isConversationLoading } =
     useGetConversationById(conversationId);
+  const { data: messages = [], isLoading: isMessagesLoading } =
+    useGetMessages(conversationId);
 
-  if (isLoading) {
+  if (isConversationLoading) {
     return (
       <main className="flex flex-col flex-1 items-center justify-center space-y-5">
         <AppLoader />
@@ -35,10 +36,6 @@ export function ChatMain({
   if (!conversation) {
     return <ConversationNotFound />;
   }
-
-  const messages = MOCK_MESSAGES.filter(
-    (message) => message.conversationId === conversationId,
-  );
 
   return (
     <main className="flex flex-col w-full h-full bg-background overflow-hidden">
@@ -52,7 +49,9 @@ export function ChatMain({
 
       {/* Chat Messages */}
       <div className="flex-1 min-h-0">
-        {messages.length > 0 ? (
+        {isMessagesLoading ? (
+          <AppLoader />
+        ) : messages.length > 0 ? (
           <MessageList
             messages={messages}
             conversation={conversation}
@@ -70,7 +69,7 @@ export function ChatMain({
       </div>
 
       {/* Chat Input */}
-      <ChatInput />
+      <ChatInput conversationId={conversationId} />
     </main>
   );
 }

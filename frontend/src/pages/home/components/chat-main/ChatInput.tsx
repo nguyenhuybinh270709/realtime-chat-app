@@ -1,20 +1,58 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useCreateMessage } from "@/hooks/mutations/useCreateMessage";
 import { SendHorizontal } from "lucide-react";
+import { useState } from "react";
 
-export function ChatInput() {
+interface ChatInputProps {
+  conversationId: string;
+}
+
+export function ChatInput({ conversationId }: ChatInputProps) {
+  const { mutate, isPending } = useCreateMessage();
+
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+
+    if (!message.trim()) return;
+
+    mutate({
+      body: message,
+      conversationId,
+    });
+
+    setMessage("");
+  };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
   return (
-    <div className="h-20 border-t-2 flex items-center px-4 shrink-0 bg-background">
+    <div className="border-t-2 px-6 py-3 shrink-0 bg-background">
       <form
-        className="flex w-full max-w-3xl mx-auto gap-2"
-        onSubmit={(e) => e.preventDefault()}
+        className="flex items-end w-full max-w-3xl mx-auto gap-2"
+        onSubmit={handleSubmit}
       >
-        <Input
+        <Textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Type a message..."
-          className="rounded-full bg-muted border-none focus-visible:ring-1"
+          rows={1}
+          className="flex-1 resize-none min-h-9 max-h-26 px-6 overflow-y-auto rounded-2xl bg-muted border-none py-2 focus-visible:ring-1"
         />
-        <Button size="icon" className="rounded-full shrink-0 cursor-pointer">
-          <SendHorizontal className="h-4 w-4" />
+        <Button
+          type="submit"
+          size="icon"
+          className="rounded-full shrink-0 cursor-pointer"
+          disabled={isPending}
+        >
+          <SendHorizontal className="h-4 w-8" />
         </Button>
       </form>
     </div>

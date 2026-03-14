@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getConversationDisplayInfo } from "@/utils/conversation";
+import { formatMessageTime } from "@/utils/formatMessageTime";
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -40,8 +41,8 @@ export const ConversationItem = ({
           {/* Conversation Name */}
           <h4 className="font-semibold text-sm truncate">{displayName}</h4>
           {/* Last Message Time */}
-          <span className="text-[10px] text-foreground/60 whitespace-nowrap uppercase">
-            {conversation.lastMessageAt ?? ""}
+          <span className="text-[10px] text-foreground/60 whitespace-nowrap capitalize">
+            {formatMessageTime(conversation.lastMessageAt) ?? ""}
           </span>
         </div>
 

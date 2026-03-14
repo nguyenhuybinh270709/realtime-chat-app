@@ -40,6 +40,7 @@ export default function Home() {
         {conversationId ? (
           <ChatMain
             currentUserId={currentUser.id}
+            conversationId={conversationId}
             toggleConversationInfo={() =>
               setIsConversationInfoOpen((prev) => !prev)
             }

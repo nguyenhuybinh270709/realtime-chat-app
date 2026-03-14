@@ -17,7 +17,7 @@ export function MessageList({
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "auto" });
-  }, [messages.length]);
+  }, [messages]);
 
   return (
     <ScrollArea className="h-full min-h-0 w-full bg-muted dark:bg-muted/70">

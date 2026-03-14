@@ -120,7 +120,17 @@ export const getConversationsService = async (currentUserId: string) => {
         },
       },
     },
-    orderBy: [{ lastMessageAt: "desc" }, { createdAt: "desc" }],
+    orderBy: [
+      {
+        lastMessageAt: {
+          sort: "desc",
+          nulls: "last",
+        },
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
   });
 
   return conversations;

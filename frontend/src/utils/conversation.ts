@@ -9,7 +9,7 @@ export function getConversationDisplayInfo(
   );
 
   const displayName = isGroup
-    ? conversation.conversationName
+    ? (conversation.conversationName ?? "")
     : (otherUser?.user.displayName ?? "Unknown");
 
   const avatar = isGroup
