@@ -178,3 +178,41 @@ export const getConversationByIdService = async (
 
   return conversation;
 };
+
+export const deleteGroupConversationService = async (
+  conversationId: string,
+  currentUserId: string,
+) => {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: conversationId },
+    select: {
+      isGroup: true,
+      participants: {
+        where: {
+          userId: currentUserId,
+        },
+        select: {
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!conversation) {
+    throw createError(404, "Conversation not found");
+  }
+
+  if (!conversation.isGroup) {
+    throw createError(400, "You cannot delete a direct conversation");
+  }
+
+  const currentParticipant = conversation.participants[0];
+
+  if (!currentParticipant || currentParticipant.role !== "owner") {
+    throw createError(403, "Only the group owner can delete this conversation");
+  }
+
+  return prisma.conversation.delete({
+    where: { id: conversationId },
+  });
+};

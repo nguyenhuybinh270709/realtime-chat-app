@@ -1,5 +1,6 @@
 import {
   createConversationService,
+  deleteGroupConversationService,
   getConversationByIdService,
   getConversationsService,
 } from "@/services/conversation.service";
@@ -53,6 +54,25 @@ export const getConversationById = async (
     );
 
     return res.status(200).json(conversation);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteGroupConversation = async (
+  req: Request<{ conversationId: string }>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { conversationId } = req.params;
+    const currentUserId = req.user!.id;
+
+    await deleteGroupConversationService(conversationId, currentUserId);
+
+    return res
+      .status(200)
+      .json({ message: "Conversation deleted successfully" });
   } catch (error) {
     next(error);
   }
