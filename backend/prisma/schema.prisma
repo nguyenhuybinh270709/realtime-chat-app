@@ -54,7 +54,7 @@ model Conversation {
 
 model ConversationParticipant {
   id   String @id @default(uuid())
-  role Role   @default(member)
+  role Role?
 
   // Foreign Keys & Relations
   userId         String

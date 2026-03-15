@@ -75,7 +75,9 @@ export const createConversationService = async (
 
   const participantCreateInputs = participantIds.map((id) => ({
     userId: id,
-    role: id === currentUserId ? Role.owner : Role.member,
+    ...(isGroup && {
+      role: id === currentUserId ? Role.owner : Role.member,
+    }),
   }));
 
   const conversation = await prisma.conversation.create({
