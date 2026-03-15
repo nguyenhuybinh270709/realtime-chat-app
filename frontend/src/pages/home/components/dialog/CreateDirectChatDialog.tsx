@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useCreateConversation } from "@/hooks/mutations/useCreateConversation";
 import { useFindUserByUsername } from "@/hooks/mutations/useFindUserByUsername";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 
 interface CreateDirectChatDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ export function CreateDirectChatDialog({
   open,
   onOpenChange,
 }: CreateDirectChatDialogProps) {
+  const { data: currentUser } = useGetCurrentUser();
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -55,6 +57,11 @@ export function CreateDirectChatDialog({
 
     try {
       const user = await findUserByUsername(trimmedUsername);
+
+      if (user.id === currentUser?.id) {
+        setError("You cannot add yourself");
+        return;
+      }
 
       const conversation = await createConversation({
         userIds: [user.id],
