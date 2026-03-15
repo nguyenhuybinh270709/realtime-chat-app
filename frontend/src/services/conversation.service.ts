@@ -26,3 +26,7 @@ export const createConversationAPI = async (
 
   return res.data;
 };
+
+export const deleteGroupConversationAPI = async (conversationId: string) => {
+  await api.delete(`/conversations/${conversationId}`);
+};

@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { getConversationDisplayInfo } from "@/utils/conversation";
+import { useDeleteGroupConversation } from "@/hooks/mutations/useDeleteGroupConversation";
 
 interface ConversationInfoProps {
   conversation: Conversation;
@@ -27,8 +28,15 @@ export function ConversationInfo({
   currentUserId,
   onClose,
 }: ConversationInfoProps) {
+  const { mutate, isPending } = useDeleteGroupConversation();
+
   const { otherUser, isGroup, displayName, avatar } =
     getConversationDisplayInfo(conversation, currentUserId);
+
+  const isOwner = conversation.participants.find(
+    (participant) =>
+      participant.user.id === currentUserId && participant.role === "owner",
+  );
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -122,36 +130,47 @@ export function ConversationInfo({
           {/* Actions */}
           <div className="w-full space-y-1">
             {/* Delete Action */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-                >
-                  Delete conversation
-                </Button>
-              </AlertDialogTrigger>
-              {/* Confirmation Dialog */}
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete this conversation?</AlertDialogTitle>
+            {isOwner && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                  >
+                    Delete conversation
+                  </Button>
+                </AlertDialogTrigger>
+                {/* Confirmation Dialog */}
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Delete this conversation?
+                    </AlertDialogTitle>
 
-                  <AlertDialogDescription>
-                    This action cannot be undone. All messages in this
-                    conversation will be permanently removed.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                {/* Dialog Actions */}
-                <AlertDialogFooter>
-                  <AlertDialogCancel className="cursor-pointer">
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction className="bg-destructive! hover:bg-destructive/80! cursor-pointer">
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                    <AlertDialogDescription>
+                      This action cannot be undone. All messages in this
+                      conversation will be permanently removed.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  {/* Dialog Actions */}
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      className="cursor-pointer"
+                      disabled={isPending}
+                    >
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => mutate(conversation.id)}
+                      className="bg-destructive! hover:bg-destructive/80! cursor-pointer"
+                      disabled={isPending}
+                    >
+                      {isPending ? "Deleting..." : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
       </ScrollArea>
