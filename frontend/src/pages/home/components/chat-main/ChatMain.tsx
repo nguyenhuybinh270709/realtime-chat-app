@@ -7,8 +7,7 @@ import { useGetConversationById } from "@/hooks/queries/useGetConversationById";
 import AppLoader from "@/components/AppLoader";
 import { ConversationNotFound } from "@/pages/home/components/chat-main/ConversationNotFound";
 import { useGetMessages } from "@/hooks/queries/useGetMessages";
-import { useEffect } from "react";
-import { socket } from "@/lib/socket";
+import { useSocketMessages } from "@/hooks/useSocketMessages";
 
 interface ChatMainProps {
   currentUserId: string;
@@ -21,23 +20,13 @@ export function ChatMain({
   conversationId,
   toggleConversationInfo,
 }: ChatMainProps) {
+  useSocketMessages(conversationId);
+
   const navigate = useNavigate();
   const { data: conversation, isLoading: isConversationLoading } =
     useGetConversationById(conversationId);
   const { data: messages = [], isLoading: isMessagesLoading } =
     useGetMessages(conversationId);
-
-  useEffect(() => {
-    if (!conversationId) return;
-
-    socket.emit("join_conversation", conversationId);
-    console.log("Joined conversation: ", conversationId);
-
-    return () => {
-      socket.emit("leave_conversation", conversationId);
-      console.log("Leaved conversation: ", conversationId);
-    };
-  }, [conversationId]);
 
   if (isConversationLoading) {
     return (

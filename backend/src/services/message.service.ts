@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getIO } from "@/lib/socket";
 
 export const createMessageService = async (
   body: string,
@@ -33,6 +34,8 @@ export const createMessageService = async (
       },
     }),
   ]);
+
+  getIO().to(conversationId).emit("new_message", message);
 
   return message;
 };
