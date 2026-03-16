@@ -7,6 +7,7 @@ export const initSocket = (server: HTTPServer) => {
   io = new Server(server, {
     cors: {
       origin: process.env.FRONTEND_URL,
+      credentials: true,
     },
   });
 
