@@ -5,4 +5,9 @@ export const conversationSocketHandler = (socket: Socket) => {
     socket.join(conversationId);
     console.log(`Socket ${socket.id} joined ${conversationId}`);
   });
+
+  socket.on("leave_conversation", (conversationId: string) => {
+    socket.leave(conversationId);
+    console.log(`Socket ${socket.id} leaved ${conversationId}`);
+  });
 };
