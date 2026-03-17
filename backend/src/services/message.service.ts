@@ -6,12 +6,12 @@ export const createMessageService = async (
   conversationId: string,
   senderId: string,
 ) => {
-  const [message] = await prisma.$transaction([
-    prisma.message.create({
+  const message = await prisma.$transaction(async (tx) => {
+    const message = await tx.message.create({
       data: {
-        body: body,
-        conversationId: conversationId,
-        senderId: senderId,
+        body,
+        conversationId,
+        senderId,
       },
       include: {
         sender: {
@@ -22,20 +22,25 @@ export const createMessageService = async (
           },
         },
       },
-    }),
+    });
 
-    prisma.conversation.update({
-      where: {
-        id: conversationId,
-      },
+    await tx.conversation.update({
+      where: { id: conversationId },
       data: {
-        lastMessagePreview: body,
-        lastMessageAt: new Date(),
+        lastMessagePreview: message.body,
+        lastMessageAt: message.createdAt,
       },
-    }),
-  ]);
+    });
+
+    return message;
+  });
 
   getIO().to(conversationId).emit("new_message", message);
+  getIO().emit("conversation_updated", {
+    conversationId,
+    lastMessagePreview: message.body,
+    lastMessageAt: message.createdAt,
+  });
 
   return message;
 };
