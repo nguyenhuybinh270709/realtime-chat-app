@@ -6,8 +6,12 @@ import {
   type ConversationUpdatePayload,
 } from "@/utils/conversation";
 import { SOCKET_EVENTS } from "@/socket/events";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-export const useSocketConversation = () => {
+export const useSocketConversation = (conversationId?: string) => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     const handleConversationCreated = ({
       conversation,
@@ -29,7 +33,7 @@ export const useSocketConversation = () => {
       );
     };
     const handleConversationDeleted = ({
-      conversationId,
+      conversationId: deletedConversationId,
     }: {
       conversationId: string;
     }) => {
@@ -37,9 +41,14 @@ export const useSocketConversation = () => {
         ["conversations"],
         (conversations = []) =>
           conversations.filter(
-            (conversation) => conversation.id !== conversationId,
+            (conversation) => conversation.id !== deletedConversationId,
           ),
       );
+
+      if (deletedConversationId === conversationId) {
+        toast.success("Group has been deleted");
+        navigate("/");
+      }
     };
 
     socket.on(SOCKET_EVENTS.CONVERSATION.CREATED, handleConversationCreated);
@@ -51,5 +60,5 @@ export const useSocketConversation = () => {
       socket.off(SOCKET_EVENTS.CONVERSATION.UPDATED, handleConversationUpdated);
       socket.off(SOCKET_EVENTS.CONVERSATION.DELETED, handleConversationDeleted);
     };
-  }, []);
+  }, [conversationId, navigate]);
 };

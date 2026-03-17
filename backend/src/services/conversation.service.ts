@@ -212,11 +212,9 @@ export const deleteGroupConversationService = async (
     select: {
       isGroup: true,
       participants: {
-        where: {
-          userId: currentUserId,
-        },
         select: {
           role: true,
+          userId: true,
         },
       },
     },
@@ -230,18 +228,26 @@ export const deleteGroupConversationService = async (
     throw createError(400, "You cannot delete a direct conversation");
   }
 
-  const currentParticipant = conversation.participants[0];
+  const currentUserParticipant = conversation.participants.find(
+    (participant) => participant.userId === currentUserId,
+  );
 
-  if (!currentParticipant || currentParticipant.role !== "owner") {
+  if (!currentUserParticipant || currentUserParticipant.role !== "owner") {
     throw createError(403, "Only the group owner can delete this conversation");
   }
 
-  const deletedConversation = await prisma.conversation.delete({
-    where: { id: conversationId },
+  const allParticipantIds = conversation.participants.map(
+    (participant) => participant.userId,
+  );
+
+  allParticipantIds.forEach((userId) => {
+    getIO().to(userId).emit(SOCKET_EVENTS.CONVERSATION.DELETED, {
+      conversationId,
+    });
   });
 
-  getIO().to(conversationId).emit(SOCKET_EVENTS.CONVERSATION.DELETED, {
-    conversationId,
+  const deletedConversation = await prisma.conversation.delete({
+    where: { id: conversationId },
   });
 
   return deletedConversation;

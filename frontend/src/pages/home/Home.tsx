@@ -10,12 +10,12 @@ import AppLoader from "@/components/AppLoader";
 import { useSocketConversation } from "@/hooks/socket/useSocketConversation";
 
 export default function Home() {
-  useSocketConversation();
-
   const { conversationId } = useParams();
 
   const { data: conversations } = useGetConversations();
   const { data: currentUser } = useGetCurrentUser();
+
+  useSocketConversation(conversationId);
 
   const [isConversationInfoOpen, setIsConversationInfoOpen] = useState(false);
 

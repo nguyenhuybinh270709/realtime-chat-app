@@ -8,10 +8,6 @@ import AppLoader from "@/components/AppLoader";
 import { ConversationNotFound } from "@/pages/home/components/chat-main/ConversationNotFound";
 import { useGetMessages } from "@/hooks/queries/useGetMessages";
 import { useSocketMessage } from "@/hooks/socket/useSocketMessage";
-import { useEffect } from "react";
-import { socket } from "@/lib/socket";
-import { toast } from "sonner";
-import { SOCKET_EVENTS } from "@/socket/events";
 
 interface ChatMainProps {
   currentUserId: string;
@@ -31,25 +27,6 @@ export function ChatMain({
     useGetConversationById(conversationId);
   const { data: messages = [], isLoading: isMessagesLoading } =
     useGetMessages(conversationId);
-
-  useEffect(() => {
-    const handleDeleteConversation = ({
-      conversationId: deletedId,
-    }: {
-      conversationId: string;
-    }) => {
-      if (deletedId === conversationId) {
-        toast.success("Group has been deleted");
-        navigate("/");
-      }
-    };
-
-    socket.on(SOCKET_EVENTS.CONVERSATION.DELETED, handleDeleteConversation);
-
-    return () => {
-      socket.off(SOCKET_EVENTS.CONVERSATION.DELETED, handleDeleteConversation);
-    };
-  }, [conversationId, navigate]);
 
   if (isConversationLoading) {
     return (
