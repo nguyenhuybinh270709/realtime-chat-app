@@ -8,7 +8,6 @@ import AppLoader from "@/components/AppLoader";
 import { ConversationNotFound } from "@/pages/home/components/chat-main/ConversationNotFound";
 import { useGetMessages } from "@/hooks/queries/useGetMessages";
 import { useSocketMessages } from "@/hooks/useSocketMessages";
-import { useSocketConversations } from "@/hooks/useSocketConversations";
 
 interface ChatMainProps {
   currentUserId: string;
@@ -22,7 +21,7 @@ export function ChatMain({
   toggleConversationInfo,
 }: ChatMainProps) {
   useSocketMessages(conversationId);
-  useSocketConversations();
+
 
   const navigate = useNavigate();
   const { data: conversation, isLoading: isConversationLoading } =

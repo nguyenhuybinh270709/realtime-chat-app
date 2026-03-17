@@ -7,8 +7,11 @@ import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 import { ChatMain } from "@/pages/home/components/chat-main/ChatMain";
 import { NoConversationSelected } from "@/pages/home/components/chat-main/NoConversationSelected";
 import AppLoader from "@/components/AppLoader";
+import { useSocketConversations } from "@/hooks/useSocketConversations";
 
 export default function Home() {
+  useSocketConversations();
+
   const { conversationId } = useParams();
 
   const { data: conversations } = useGetConversations();
