@@ -11,7 +11,7 @@ import { useSocketMessage } from "@/hooks/socket/useSocketMessage";
 import { useEffect } from "react";
 import { socket } from "@/lib/socket";
 import { toast } from "sonner";
-import { SOCKET_EVENTS } from "@/sockets/events";
+import { SOCKET_EVENTS } from "@/socket/events";
 
 interface ChatMainProps {
   currentUserId: string;

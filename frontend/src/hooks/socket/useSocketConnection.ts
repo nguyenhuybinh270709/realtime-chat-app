@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { socket } from "@/lib/socket";
-import { SOCKET_EVENTS } from "@/sockets/events";
+import { SOCKET_EVENTS } from "@/socket/events";
 
 export const useSocketConnection = (isAuthenticated: boolean) => {
   useEffect(() => {

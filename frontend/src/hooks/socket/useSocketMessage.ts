@@ -1,6 +1,6 @@
 import { queryClient } from "@/lib/queryClient";
 import { socket } from "@/lib/socket";
-import { SOCKET_EVENTS } from "@/sockets/events";
+import { SOCKET_EVENTS } from "@/socket/events";
 import { useEffect } from "react";
 
 export const useSocketMessage = (conversationId: string) => {

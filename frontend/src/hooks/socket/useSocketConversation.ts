@@ -5,7 +5,7 @@ import {
   updateConversationList,
   type ConversationUpdatePayload,
 } from "@/utils/conversation";
-import { SOCKET_EVENTS } from "@/sockets/events";
+import { SOCKET_EVENTS } from "@/socket/events";
 
 export const useSocketConversation = () => {
   useEffect(() => {
