@@ -1,8 +1,9 @@
 import { queryClient } from "@/lib/queryClient";
 import { socket } from "@/lib/socket";
+import { SOCKET_EVENTS } from "@/sockets/events";
 import { useEffect } from "react";
 
-export const useSocketMessages = (conversationId: string) => {
+export const useSocketMessage = (conversationId: string) => {
   useEffect(() => {
     if (!conversationId) return;
 
@@ -17,20 +18,20 @@ export const useSocketMessages = (conversationId: string) => {
     };
 
     const handleConnect = () => {
-      socket.emit("join_conversation", conversationId);
+      socket.emit(SOCKET_EVENTS.CONVERSATION.JOIN, conversationId);
     };
 
-    socket.on("new_message", handleNewMessage);
-    socket.on("connect", handleConnect);
+    socket.on(SOCKET_EVENTS.MESSAGE.NEW, handleNewMessage);
+    socket.on(SOCKET_EVENTS.BASE.CONNECT, handleConnect);
 
     if (socket.connected) {
-      socket.emit("join_conversation", conversationId);
+      socket.emit(SOCKET_EVENTS.CONVERSATION.JOIN, conversationId);
     }
 
     return () => {
-      socket.off("new_message", handleNewMessage);
-      socket.off("connect", handleConnect);
-      socket.emit("leave_conversation", conversationId);
+      socket.off(SOCKET_EVENTS.MESSAGE.NEW, handleNewMessage);
+      socket.off(SOCKET_EVENTS.BASE.CONNECT, handleConnect);
+      socket.emit(SOCKET_EVENTS.CONVERSATION.LEAVE, conversationId);
     };
   }, [conversationId]);
 };

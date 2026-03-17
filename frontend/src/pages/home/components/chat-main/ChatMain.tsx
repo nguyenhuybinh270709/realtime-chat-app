@@ -7,10 +7,11 @@ import { useGetConversationById } from "@/hooks/queries/useGetConversationById";
 import AppLoader from "@/components/AppLoader";
 import { ConversationNotFound } from "@/pages/home/components/chat-main/ConversationNotFound";
 import { useGetMessages } from "@/hooks/queries/useGetMessages";
-import { useSocketMessages } from "@/hooks/socket/useSocketMessages";
+import { useSocketMessage } from "@/hooks/socket/useSocketMessage";
 import { useEffect } from "react";
 import { socket } from "@/lib/socket";
 import { toast } from "sonner";
+import { SOCKET_EVENTS } from "@/sockets/events";
 
 interface ChatMainProps {
   currentUserId: string;
@@ -23,7 +24,7 @@ export function ChatMain({
   conversationId,
   toggleConversationInfo,
 }: ChatMainProps) {
-  useSocketMessages(conversationId);
+  useSocketMessage(conversationId);
 
   const navigate = useNavigate();
   const { data: conversation, isLoading: isConversationLoading } =
@@ -43,10 +44,10 @@ export function ChatMain({
       }
     };
 
-    socket.on("conversation_deleted", handleDeleteConversation);
+    socket.on(SOCKET_EVENTS.CONVERSATION.DELETED, handleDeleteConversation);
 
     return () => {
-      socket.off("conversation_deleted", handleDeleteConversation);
+      socket.off(SOCKET_EVENTS.CONVERSATION.DELETED, handleDeleteConversation);
     };
   }, [conversationId, navigate]);
 

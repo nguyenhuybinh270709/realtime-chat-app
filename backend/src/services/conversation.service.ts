@@ -3,6 +3,7 @@ import { Role } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { getIO } from "@/lib/socket";
 import { createConversationSchema } from "@/schema/conversation.schema";
+import { SOCKET_EVENTS } from "@/socket/events";
 import z from "zod";
 
 export const createConversationService = async (
@@ -89,6 +90,26 @@ export const createConversationService = async (
         create: participantCreateInputs,
       },
     },
+    include: {
+      participants: {
+        select: {
+          role: true,
+          user: {
+            select: {
+              id: true,
+              displayName: true,
+              profileImage: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  participantIds.forEach((userId) => {
+    getIO().to(userId).emit(SOCKET_EVENTS.CONVERSATION.CREATED, {
+      conversation,
+    });
   });
 
   return conversation;
@@ -219,7 +240,7 @@ export const deleteGroupConversationService = async (
     where: { id: conversationId },
   });
 
-  getIO().to(conversationId).emit("conversation_deleted", {
+  getIO().to(conversationId).emit(SOCKET_EVENTS.CONVERSATION.DELETED, {
     conversationId,
   });
 

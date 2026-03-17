@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getIO } from "@/lib/socket";
+import { SOCKET_EVENTS } from "@/socket/events";
 
 export const createMessageService = async (
   body: string,
@@ -35,8 +36,8 @@ export const createMessageService = async (
     return message;
   });
 
-  getIO().to(conversationId).emit("new_message", message);
-  getIO().emit("conversation_updated", {
+  getIO().to(conversationId).emit(SOCKET_EVENTS.MESSAGE.NEW, message);
+  getIO().emit(SOCKET_EVENTS.CONVERSATION.UPDATED, {
     conversationId,
     lastMessagePreview: message.body,
     lastMessageAt: message.createdAt,
