@@ -8,7 +8,6 @@ export const useDeleteGroupConversation = () => {
   return useMutation({
     mutationFn: deleteGroupConversationAPI,
     onSuccess: () => {
-      toast.success("Conversation deleted successfully");
       queryClient.invalidateQueries({
         queryKey: ["conversations"],
       });

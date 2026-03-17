@@ -14,11 +14,26 @@ export const useSocketConversations = () => {
         (conversations) => updateConversationList(conversations, payload),
       );
     };
+    const handleConversationDeleted = ({
+      conversationId,
+    }: {
+      conversationId: string;
+    }) => {
+      queryClient.setQueryData<Conversation[]>(
+        ["conversations"],
+        (conversations = []) =>
+          conversations.filter(
+            (conversation) => conversation.id !== conversationId,
+          ),
+      );
+    };
 
     socket.on("conversation_updated", handleConversationUpdated);
+    socket.on("conversation_deleted", handleConversationDeleted);
 
     return () => {
       socket.off("conversation_updated", handleConversationUpdated);
+      socket.off("conversation_deleted", handleConversationDeleted);
     };
   }, []);
 };

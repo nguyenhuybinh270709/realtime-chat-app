@@ -1,6 +1,7 @@
 import { createError } from "@/errors/app.error";
 import { Role } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
+import { getIO } from "@/lib/socket";
 import { createConversationSchema } from "@/schema/conversation.schema";
 import z from "zod";
 
@@ -214,7 +215,13 @@ export const deleteGroupConversationService = async (
     throw createError(403, "Only the group owner can delete this conversation");
   }
 
-  return prisma.conversation.delete({
+  const deletedConversation = await prisma.conversation.delete({
     where: { id: conversationId },
   });
+
+  getIO().to(conversationId).emit("conversation_deleted", {
+    conversationId,
+  });
+
+  return deletedConversation;
 };
