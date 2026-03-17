@@ -5,7 +5,7 @@ import SignUp from "@/pages/signup/SignUp";
 import Login from "@/pages/login/Login";
 import AppLoader from "@/components/AppLoader";
 import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
-import { useSocket } from "@/hooks/useSocket";
+import { useSocket } from "@/hooks/socket/useSocket";
 
 function App() {
   const { data: user, isLoading } = useGetCurrentUser();
