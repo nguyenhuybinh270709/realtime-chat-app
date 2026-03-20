@@ -1,22 +1,16 @@
 import { api } from "@/lib/axios";
-
-interface CreateMessageBody {
-  body: string;
-  conversationId: string;
-}
+import type { CreateMessageInput, MessageDTO } from "@realtime-chat-app/shared";
 
 export const createMessageAPI = async (
-  data: CreateMessageBody,
-): Promise<Message> => {
+  data: CreateMessageInput,
+): Promise<MessageDTO> => {
   const res = await api.post("/messages", data);
-
   return res.data;
 };
 
 export const getMessagesAPI = async (
   conversationId: string,
-): Promise<Message[]> => {
+): Promise<MessageDTO[]> => {
   const res = await api.get(`/messages/${conversationId}`);
-
   return res.data;
 };

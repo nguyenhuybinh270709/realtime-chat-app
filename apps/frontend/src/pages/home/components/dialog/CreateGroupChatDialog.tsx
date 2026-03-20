@@ -14,6 +14,7 @@ import { getApiErrorMessage } from "@/lib/apiError";
 import { X } from "lucide-react";
 import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { UserDTO } from "@realtime-chat-app/shared";
 
 interface CreateGroupChatDialogProps {
   open: boolean;
@@ -29,7 +30,9 @@ export function CreateGroupChatDialog({
 
   const [conversationName, setConversationName] = useState("");
   const [username, setUsername] = useState("");
-  const [selectedParticipants, setSelectedParticipants] = useState<User[]>([]);
+  const [selectedParticipants, setSelectedParticipants] = useState<UserDTO[]>(
+    [],
+  );
   const [error, setError] = useState<string | null>(null);
 
   const { mutateAsync: findUserByUsername, isPending: isFindingUser } =

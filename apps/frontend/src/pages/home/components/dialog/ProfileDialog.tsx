@@ -15,18 +15,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUpdateProfile } from "@/hooks/mutations/useUpdateProfile";
 import { useNotify } from "@/hooks/useNotify";
 import { mapZodErrors } from "@/lib/zod";
-import { updateProfileSchema } from "@/pages/home/schema/updateProfile.schema";
+import {
+  updateProfileInputSchema,
+  type UpdateProfileInput,
+  type UserDTO,
+} from "@realtime-chat-app/shared";
 import { X } from "lucide-react";
 import { useState } from "react";
-import type z from "zod";
 
 interface ProfileDialogProps {
-  currentUser: User;
+  currentUser: UserDTO;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-type UpdateProfileForm = z.infer<typeof updateProfileSchema>;
 
 export function ProfileDialog({
   currentUser,
@@ -37,16 +38,16 @@ export function ProfileDialog({
 
   const notify = useNotify();
 
-  const [form, setForm] = useState<UpdateProfileForm>({
+  const [form, setForm] = useState<UpdateProfileInput>({
     displayName: currentUser.displayName ?? "",
     bio: currentUser.bio ?? "",
   });
 
   const [errors, setErrors] = useState<
-    Partial<Record<keyof UpdateProfileForm, string>>
+    Partial<Record<keyof UpdateProfileInput, string>>
   >({});
 
-  const handleChange = (field: keyof UpdateProfileForm, value: string) => {
+  const handleChange = (field: keyof UpdateProfileInput, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
 
     setErrors((prev) => (prev[field] ? { ...prev, [field]: "" } : prev));
@@ -55,10 +56,10 @@ export function ProfileDialog({
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const result = updateProfileSchema.safeParse(form);
+    const result = updateProfileInputSchema.safeParse(form);
 
     if (!result.success) {
-      setErrors(mapZodErrors<UpdateProfileForm>(result.error.issues));
+      setErrors(mapZodErrors<UpdateProfileInput>(result.error.issues));
       return;
     }
 

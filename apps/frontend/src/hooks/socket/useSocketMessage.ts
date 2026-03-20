@@ -1,14 +1,14 @@
 import { queryClient } from "@/lib/queryClient";
 import { socket } from "@/lib/socket";
-import { SOCKET_EVENTS } from "@realtime-chat-app/shared";
+import { SOCKET_EVENTS, type MessageDTO } from "@realtime-chat-app/shared";
 import { useEffect } from "react";
 
 export const useSocketMessage = (conversationId: string) => {
   useEffect(() => {
     if (!conversationId) return;
 
-    const handleMessageCreated = (message: Message) => {
-      queryClient.setQueryData<Message[]>(
+    const handleMessageCreated = (message: MessageDTO) => {
+      queryClient.setQueryData<MessageDTO[]>(
         ["messages", conversationId],
         (old = []) => {
           if (old.some((m) => m.id === message.id)) return old;

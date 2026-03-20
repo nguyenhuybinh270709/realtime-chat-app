@@ -16,9 +16,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { getConversationDisplayInfo } from "@/utils/conversation";
 import { useDeleteGroupConversation } from "@/hooks/mutations/useDeleteGroupConversation";
+import type { ConversationDTO } from "@realtime-chat-app/shared";
 
 interface ConversationInfoProps {
-  conversation: Conversation;
+  conversation: ConversationDTO;
   currentUserId: string;
   onClose: () => void;
 }

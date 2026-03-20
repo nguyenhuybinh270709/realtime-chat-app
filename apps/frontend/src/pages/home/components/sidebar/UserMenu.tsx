@@ -24,9 +24,10 @@ import { ProfileDialog } from "@/pages/home/components/dialog/ProfileDialog";
 import { SettingsDialog } from "@/pages/home/components/dialog/SettingsDialog";
 import { useState } from "react";
 import { useLogout } from "@/hooks/mutations/useLogout";
+import type { UserDTO } from "@realtime-chat-app/shared";
 
 interface UserMenuProps {
-  currentUser: User;
+  currentUser: UserDTO;
 }
 
 export function UserMenu({ currentUser }: UserMenuProps) {

@@ -1,9 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getConversationDisplayInfo } from "@/utils/conversation";
 import { formatMessageTime } from "@/utils/formatMessageTime";
+import type { ConversationDTO } from "@realtime-chat-app/shared";
 
 interface ConversationItemProps {
-  conversation: Conversation;
+  conversation: ConversationDTO;
   currentUserId: string;
   onClick: () => void;
   active?: boolean;

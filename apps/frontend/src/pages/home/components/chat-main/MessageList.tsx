@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "@/pages/home/components/chat-main/MessageBubble";
+import type { ConversationDTO, MessageDTO } from "@realtime-chat-app/shared";
 
 interface MessageListProps {
-  messages: Message[];
-  conversation: Conversation;
+  messages: MessageDTO[];
+  conversation: ConversationDTO;
   currentUserId: string;
 }
 

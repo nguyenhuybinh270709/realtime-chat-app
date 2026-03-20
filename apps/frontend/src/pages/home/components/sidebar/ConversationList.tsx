@@ -1,10 +1,11 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ConversationItem } from "@/pages/home/components/sidebar/ConversationItem";
+import type { ConversationDTO, UserDTO } from "@realtime-chat-app/shared";
 import { useNavigate } from "react-router-dom";
 
 interface ConversationListProps {
-  conversations: Conversation[];
-  currentUser: User;
+  conversations: ConversationDTO[];
+  currentUser: UserDTO;
   activeConversationId?: string;
 }
 

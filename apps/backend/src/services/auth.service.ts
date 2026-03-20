@@ -1,12 +1,17 @@
 import { createError } from "@/errors/app.error";
 import { prisma } from "@/lib/prisma";
-import { loginSchema, signUpSchema } from "@/schema/auth.schema";
-import z from "zod";
+import { z } from "zod";
 import bcrypt from "bcrypt";
-import { authUserSelect } from "@/types/auth";
+import { userSelect } from "@/types/user";
+import {
+  loginInputSchema,
+  signUpInputSchema,
+  userDtoSchema,
+  type UserDTO,
+} from "@realtime-chat-app/shared";
 
-export const signUpService = async (body: unknown) => {
-  const parseResult = signUpSchema.safeParse(body);
+export const signUpService = async (body: unknown): Promise<UserDTO> => {
+  const parseResult = signUpInputSchema.safeParse(body);
 
   if (!parseResult.success) {
     throw createError(
@@ -39,14 +44,14 @@ export const signUpService = async (body: unknown) => {
       gender: gender,
       profileImage: profileImage,
     },
-    select: authUserSelect,
+    select: userSelect,
   });
 
-  return newUser;
+  return userDtoSchema.parse(newUser);
 };
 
-export const loginService = async (body: unknown) => {
-  const parseResult = loginSchema.safeParse(body);
+export const loginService = async (body: unknown): Promise<UserDTO> => {
+  const parseResult = loginInputSchema.safeParse(body);
 
   if (!parseResult.success) {
     throw createError(
@@ -61,7 +66,7 @@ export const loginService = async (body: unknown) => {
   const user = await prisma.user.findUnique({
     where: { username: username },
     select: {
-      ...authUserSelect,
+      ...userSelect,
       hashedPassword: true,
     },
   });
@@ -79,5 +84,5 @@ export const loginService = async (body: unknown) => {
   // Remove hashedPassword from response
   const { hashedPassword: hashedPassword, ...userResponse } = user;
 
-  return userResponse;
+  return userDtoSchema.parse(userResponse);
 };

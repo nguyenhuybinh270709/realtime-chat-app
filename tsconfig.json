@@ -1,5 +1,12 @@
 {
   "files": [],
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": []
+  },
   "references": [
     { "path": "packages/shared" },
     { "path": "apps/frontend" },

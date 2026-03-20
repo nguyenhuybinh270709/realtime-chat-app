@@ -1,12 +1,24 @@
+import { createError } from "@/errors/app.error";
 import { prisma } from "@/lib/prisma";
 import { getIO } from "@/lib/socket";
-import { SOCKET_EVENTS } from "@realtime-chat-app/shared";
+import {
+  messageDtoSchema,
+  SOCKET_EVENTS,
+  type MessageDTO,
+} from "@realtime-chat-app/shared";
 
 export const createMessageService = async (
   body: string,
   conversationId: string,
   senderId: string,
-) => {
+): Promise<MessageDTO> => {
+  const isParticipant = await prisma.conversationParticipant.findFirst({
+    where: { conversationId: conversationId, userId: senderId },
+  });
+  if (!isParticipant) {
+    throw createError(403, "You are not in this conversation");
+  }
+
   const message = await prisma.$transaction(async (tx) => {
     const message = await tx.message.create({
       data: {
@@ -36,17 +48,37 @@ export const createMessageService = async (
     return message;
   });
 
-  getIO().to(conversationId).emit(SOCKET_EVENTS.MESSAGE.CREATED, message);
-  getIO().emit(SOCKET_EVENTS.CONVERSATION.UPDATED, {
-    conversationId,
-    lastMessagePreview: message.body,
-    lastMessageAt: message.createdAt,
+  const participants = await prisma.conversationParticipant.findMany({
+    where: { conversationId },
+    select: { userId: true },
   });
 
-  return message;
+  getIO().to(conversationId).emit(SOCKET_EVENTS.MESSAGE.CREATED, message);
+  participants.forEach((participant) => {
+    getIO().to(participant.userId).emit(SOCKET_EVENTS.CONVERSATION.UPDATED, {
+      conversationId,
+      lastMessagePreview: message.body,
+      lastMessageAt: message.createdAt,
+    });
+  });
+
+  return messageDtoSchema.parse(message);
 };
 
-export const getMessagesService = async (conversationId: string) => {
+export const getMessagesService = async (
+  conversationId: string,
+  currentUserId: string,
+): Promise<MessageDTO[]> => {
+  const conversation = await prisma.conversation.findFirst({
+    where: {
+      id: conversationId,
+      participants: { some: { userId: currentUserId } },
+    },
+  });
+  if (!conversation) {
+    throw createError(403, "Access denied");
+  }
+
   const messages = await prisma.message.findMany({
     where: {
       conversationId: conversationId,
@@ -66,5 +98,5 @@ export const getMessagesService = async (conversationId: string) => {
     },
   });
 
-  return messages;
+  return messageDtoSchema.array().parse(messages);
 };

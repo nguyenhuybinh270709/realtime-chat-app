@@ -1,32 +1,31 @@
 import { api } from "@/lib/axios";
+import type {
+  ConversationDTO,
+  CreateConversationInput,
+} from "@realtime-chat-app/shared";
 
-export interface CreateConversationBody {
-  conversationName?: string;
-  userIds: string[];
-}
-
-export const getConversationsAPI = async (): Promise<Conversation[]> => {
+export const getConversationsAPI = async (): Promise<ConversationDTO[]> => {
   const res = await api.get("/conversations");
-
   return res.data;
 };
 
 export const getConversationByIdAPI = async (
   conversationId: string,
-): Promise<Conversation> => {
+): Promise<ConversationDTO> => {
   const res = await api.get(`/conversations/${conversationId}`);
-
   return res.data;
 };
 
 export const createConversationAPI = async (
-  data: CreateConversationBody,
-): Promise<Conversation> => {
+  data: CreateConversationInput,
+): Promise<ConversationDTO> => {
   const res = await api.post("/conversations", data);
-
   return res.data;
 };
 
-export const deleteGroupConversationAPI = async (conversationId: string) => {
-  await api.delete(`/conversations/${conversationId}`);
+export const deleteGroupConversationAPI = async (
+  conversationId: string,
+): Promise<{ message: string }> => {
+  const res = await api.delete(`/conversations/${conversationId}`);
+  return res.data;
 };

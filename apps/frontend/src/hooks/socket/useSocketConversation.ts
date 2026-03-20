@@ -7,7 +7,7 @@ import {
 } from "@/utils/conversation";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { SOCKET_EVENTS } from "@realtime-chat-app/shared";
+import { SOCKET_EVENTS, type ConversationDTO } from "@realtime-chat-app/shared";
 
 export const useSocketConversation = (conversationId?: string) => {
   const navigate = useNavigate();
@@ -16,9 +16,9 @@ export const useSocketConversation = (conversationId?: string) => {
     const handleConversationCreated = ({
       conversation,
     }: {
-      conversation: Conversation;
+      conversation: ConversationDTO;
     }) => {
-      queryClient.setQueryData<Conversation[]>(
+      queryClient.setQueryData<ConversationDTO[]>(
         ["conversations"],
         (old = []) => {
           if (old.some((c) => c.id === conversation.id)) return old;
@@ -27,7 +27,7 @@ export const useSocketConversation = (conversationId?: string) => {
       );
     };
     const handleConversationUpdated = (payload: ConversationUpdatePayload) => {
-      queryClient.setQueryData<Conversation[]>(
+      queryClient.setQueryData<ConversationDTO[]>(
         ["conversations"],
         (conversations) => updateConversationList(conversations, payload),
       );
@@ -37,7 +37,7 @@ export const useSocketConversation = (conversationId?: string) => {
     }: {
       conversationId: string;
     }) => {
-      queryClient.setQueryData<Conversation[]>(
+      queryClient.setQueryData<ConversationDTO[]>(
         ["conversations"],
         (conversations = []) =>
           conversations.filter(

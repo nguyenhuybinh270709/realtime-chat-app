@@ -32,8 +32,9 @@ export const getMessages = async (
 ) => {
   try {
     const { conversationId } = req.params;
+    const currentUserId = req.user!.id;
 
-    const messages = await getMessagesService(conversationId);
+    const messages = await getMessagesService(conversationId, currentUserId);
 
     return res.status(200).json(messages);
   } catch (error) {

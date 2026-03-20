@@ -1,16 +1,22 @@
 import { createError } from "@/errors/app.error";
-import { Role } from "@/generated/prisma/enums";
+
 import { prisma } from "@/lib/prisma";
 import { getIO } from "@/lib/socket";
-import { createConversationSchema } from "@/schema/conversation.schema";
-import { SOCKET_EVENTS } from "@realtime-chat-app/shared";
-import z from "zod";
+import { conversationSelect } from "@/types/conversation";
+import {
+  conversationDtoSchema,
+  conversationRoleEnum,
+  createConversationInputSchema,
+  SOCKET_EVENTS,
+  type ConversationDTO,
+} from "@realtime-chat-app/shared";
+import { z } from "zod";
 
 export const createConversationService = async (
   body: unknown,
   currentUserId: string,
-) => {
-  const parseResult = createConversationSchema.safeParse(body);
+): Promise<ConversationDTO> => {
+  const parseResult = createConversationInputSchema.safeParse(body);
 
   if (!parseResult.success) {
     throw createError(
@@ -39,26 +45,20 @@ export const createConversationService = async (
     const existingConversation = await prisma.conversation.findFirst({
       where: {
         isGroup: false,
-        AND: [
-          { participants: { some: { userId: currentUserId } } },
-          { participants: { some: { userId: otherParticipantIds[0] } } },
-        ],
-      },
-      include: {
-        _count: {
-          select: {
-            participants: true,
+        participants: {
+          every: {
+            userId: { in: [currentUserId, otherParticipantIds[0]] },
           },
         },
       },
+      select: conversationSelect,
     });
 
     if (
       existingConversation &&
-      existingConversation._count.participants === 2
+      existingConversation.participants.length === 2
     ) {
-      const { _count, ...conversation } = existingConversation;
-      return conversation;
+      return conversationDtoSchema.parse(existingConversation);
     }
   }
 
@@ -78,7 +78,10 @@ export const createConversationService = async (
   const participantCreateInputs = participantIds.map((id) => ({
     userId: id,
     ...(isGroup && {
-      role: id === currentUserId ? Role.owner : Role.member,
+      role:
+        id === currentUserId
+          ? conversationRoleEnum.enum.owner
+          : conversationRoleEnum.enum.member,
     }),
   }));
 
@@ -90,20 +93,7 @@ export const createConversationService = async (
         create: participantCreateInputs,
       },
     },
-    include: {
-      participants: {
-        select: {
-          role: true,
-          user: {
-            select: {
-              id: true,
-              displayName: true,
-              profileImage: true,
-            },
-          },
-        },
-      },
-    },
+    select: conversationSelect,
   });
 
   participantIds.forEach((userId) => {
@@ -112,10 +102,12 @@ export const createConversationService = async (
     });
   });
 
-  return conversation;
+  return conversationDtoSchema.parse(conversation);
 };
 
-export const getConversationsService = async (currentUserId: string) => {
+export const getConversationsService = async (
+  currentUserId: string,
+): Promise<ConversationDTO[]> => {
   const conversations = await prisma.conversation.findMany({
     where: {
       participants: {
@@ -124,26 +116,7 @@ export const getConversationsService = async (currentUserId: string) => {
         },
       },
     },
-    select: {
-      id: true,
-      conversationName: true,
-      isGroup: true,
-      lastMessagePreview: true,
-      lastMessageAt: true,
-      createdAt: true,
-      participants: {
-        select: {
-          role: true,
-          user: {
-            select: {
-              id: true,
-              displayName: true,
-              profileImage: true,
-            },
-          },
-        },
-      },
-    },
+    select: conversationSelect,
     orderBy: [
       {
         lastMessageAt: {
@@ -157,13 +130,13 @@ export const getConversationsService = async (currentUserId: string) => {
     ],
   });
 
-  return conversations;
+  return conversationDtoSchema.array().parse(conversations);
 };
 
 export const getConversationByIdService = async (
   currentUserId: string,
   conversationId: string,
-) => {
+): Promise<ConversationDTO> => {
   const conversation = await prisma.conversation.findFirst({
     where: {
       id: conversationId,
@@ -173,48 +146,28 @@ export const getConversationByIdService = async (
         },
       },
     },
-    select: {
-      id: true,
-      conversationName: true,
-      isGroup: true,
-      lastMessagePreview: true,
-      lastMessageAt: true,
-      createdAt: true,
-      participants: {
-        select: {
-          role: true,
-          user: {
-            select: {
-              id: true,
-              displayName: true,
-              profileImage: true,
-              bio: true,
-            },
-          },
-        },
-      },
-    },
+    select: conversationSelect,
   });
 
   if (!conversation) {
     throw createError(404, "Conversation not found");
   }
 
-  return conversation;
+  return conversationDtoSchema.parse(conversation);
 };
 
 export const deleteGroupConversationService = async (
   conversationId: string,
   currentUserId: string,
-) => {
+): Promise<void> => {
   const conversation = await prisma.conversation.findUnique({
     where: { id: conversationId },
     select: {
       isGroup: true,
       participants: {
         select: {
-          role: true,
           userId: true,
+          role: true,
         },
       },
     },
@@ -232,7 +185,10 @@ export const deleteGroupConversationService = async (
     (participant) => participant.userId === currentUserId,
   );
 
-  if (!currentUserParticipant || currentUserParticipant.role !== "owner") {
+  if (
+    !currentUserParticipant ||
+    currentUserParticipant.role !== conversationRoleEnum.enum.owner
+  ) {
     throw createError(403, "Only the group owner can delete this conversation");
   }
 
@@ -240,15 +196,13 @@ export const deleteGroupConversationService = async (
     (participant) => participant.userId,
   );
 
+  await prisma.conversation.delete({
+    where: { id: conversationId },
+  });
+
   allParticipantIds.forEach((userId) => {
     getIO().to(userId).emit(SOCKET_EVENTS.CONVERSATION.DELETED, {
       conversationId,
     });
   });
-
-  const deletedConversation = await prisma.conversation.delete({
-    where: { id: conversationId },
-  });
-
-  return deletedConversation;
 };

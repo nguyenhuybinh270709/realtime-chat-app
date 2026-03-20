@@ -1,6 +1,6 @@
-import z from "zod";
+import { z } from "zod";
 
-export const createConversationSchema = z.object({
+export const createConversationInputSchema = z.object({
   conversationName: z
     .string()
     .trim()
@@ -8,3 +8,6 @@ export const createConversationSchema = z.object({
     .optional(),
   userIds: z.array(z.uuid()).min(1, "At least one participant is required"),
 });
+export type CreateConversationInput = z.infer<
+  typeof createConversationInputSchema
+>;

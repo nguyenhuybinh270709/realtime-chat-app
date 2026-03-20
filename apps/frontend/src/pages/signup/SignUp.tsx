@@ -6,33 +6,34 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Eye, EyeOff } from "lucide-react";
-import { signUpSchema } from "@/pages/signup/signUp.schema";
-import type z from "zod";
 import { mapZodErrors } from "@/lib/zod";
 import { useSignUp } from "@/hooks/mutations/useSignUp";
-
-type SignUpForm = z.infer<typeof signUpSchema>;
+import {
+  genderEnum,
+  signUpInputSchema,
+  type SignUpInput,
+} from "@realtime-chat-app/shared";
 
 export default function SignUp() {
   const { mutate, isPending } = useSignUp();
 
-  const [form, setForm] = useState<SignUpForm>({
+  const [form, setForm] = useState<SignUpInput>({
     username: "",
     displayName: "",
     password: "",
     confirmPassword: "",
-    gender: "male",
+    gender: genderEnum.enum.male,
   });
 
   const [errors, setErrors] = useState<
-    Partial<Record<keyof SignUpForm, string>>
+    Partial<Record<keyof SignUpInput, string>>
   >({});
 
   const [showPassword, setShowPassword] = useState(false);
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleChange = (field: keyof SignUpForm, value: string) => {
+  const handleChange = (field: keyof SignUpInput, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
 
     setErrors((prev) => (prev[field] ? { ...prev, [field]: "" } : prev));
@@ -41,10 +42,10 @@ export default function SignUp() {
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const result = signUpSchema.safeParse(form);
+    const result = signUpInputSchema.safeParse(form);
 
     if (!result.success) {
-      setErrors(mapZodErrors<SignUpForm>(result.error.issues));
+      setErrors(mapZodErrors<SignUpInput>(result.error.issues));
       return;
     }
 
@@ -159,12 +160,15 @@ export default function SignUp() {
                   className="flex gap-6"
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="male" id="male" />
+                    <RadioGroupItem value={genderEnum.enum.male} id="male" />
                     <Label htmlFor="male">Male</Label>
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="female" id="female" />
+                    <RadioGroupItem
+                      value={genderEnum.enum.female}
+                      id="female"
+                    />
                     <Label htmlFor="female">Female</Label>
                   </div>
                 </RadioGroup>

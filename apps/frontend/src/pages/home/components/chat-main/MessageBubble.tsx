@@ -1,8 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { ConversationDTO, MessageDTO } from "@realtime-chat-app/shared";
 
 interface MessageBubbleProps {
-  message: Message;
-  conversation: Conversation;
+  message: MessageDTO;
+  conversation: ConversationDTO;
   currentUserId: string;
 }
 

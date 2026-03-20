@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { authUserSelect } from "@/types/auth";
+import { userSelect } from "@/types/user";
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
@@ -23,7 +23,7 @@ export const requireAuth = async (
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: authUserSelect,
+      select: userSelect,
     });
 
     if (!user) {

@@ -1,11 +1,13 @@
+import type { ConversationDTO } from "@realtime-chat-app/shared";
+
 export interface ConversationUpdatePayload {
   conversationId: string;
   lastMessagePreview: string;
-  lastMessageAt: string;
+  lastMessageAt: Date;
 }
 
 export function getConversationDisplayInfo(
-  conversation: Conversation,
+  conversation: ConversationDTO,
   currentUserId: string,
 ) {
   const isGroup = conversation.isGroup;
@@ -31,9 +33,9 @@ export function getConversationDisplayInfo(
 }
 
 export const updateConversationList = (
-  conversations: Conversation[] = [],
+  conversations: ConversationDTO[] = [],
   payload: ConversationUpdatePayload,
-): Conversation[] => {
+): ConversationDTO[] => {
   const target = conversations.find(
     (conversation) => conversation.id === payload.conversationId,
   );

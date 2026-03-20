@@ -2,10 +2,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useNotify } from "@/hooks/useNotify";
 import { getConversationDisplayInfo } from "@/utils/conversation";
+import type { ConversationDTO } from "@realtime-chat-app/shared";
 import { ChevronLeft, MoreVertical, Phone, Video } from "lucide-react";
 
 interface ChatMainHeaderProps {
-  conversation: Conversation;
+  conversation: ConversationDTO;
   currentUserId: string;
   onBack: () => void;
   toggleConversationInfo: () => void;

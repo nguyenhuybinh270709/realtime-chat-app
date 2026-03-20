@@ -1,13 +1,18 @@
 import { createError } from "@/errors/app.error";
 import { prisma } from "@/lib/prisma";
-import { updateProfileSchema } from "@/schema/user.schema";
+import { userSelect } from "@/types/user";
+import {
+  updateProfileInputSchema,
+  userDtoSchema,
+  type UserDTO,
+} from "@realtime-chat-app/shared";
 import z from "zod";
 
 export const updateProfileService = async (
   body: unknown,
   currentUserId: string,
-) => {
-  const parseResult = updateProfileSchema.safeParse(body);
+): Promise<UserDTO> => {
+  const parseResult = updateProfileInputSchema.safeParse(body);
 
   if (!parseResult.success) {
     throw createError(
@@ -22,32 +27,25 @@ export const updateProfileService = async (
       id: currentUserId,
     },
     data: parseResult.data,
-    select: {
-      id: true,
-      displayName: true,
-      bio: true,
-    },
+    select: userSelect,
   });
 
-  return updatedUser;
+  return userDtoSchema.parse(updatedUser);
 };
 
-export const getUserByUsernameService = async (username: string) => {
+export const getUserByUsernameService = async (
+  username: string,
+): Promise<UserDTO> => {
   const user = await prisma.user.findUnique({
     where: {
       username: username,
     },
-    select: {
-      id: true,
-      username: true,
-      displayName: true,
-      profileImage: true,
-    },
+    select: userSelect,
   });
 
   if (!user) {
     throw createError(404, "Username not found");
   }
 
-  return user;
+  return userDtoSchema.parse(user);
 };

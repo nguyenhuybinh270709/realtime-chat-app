@@ -5,28 +5,25 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Eye, EyeOff } from "lucide-react";
-import type z from "zod";
 import { mapZodErrors } from "@/lib/zod";
-import { loginSchema } from "@/pages/login/login.schema";
 import { useLogin } from "@/hooks/mutations/useLogin";
-
-type LoginForm = z.infer<typeof loginSchema>;
+import { loginInputSchema, type LoginInput } from "@realtime-chat-app/shared";
 
 export default function Login() {
   const { mutate, isPending } = useLogin();
 
-  const [form, setForm] = useState<LoginForm>({
+  const [form, setForm] = useState<LoginInput>({
     username: "",
     password: "",
   });
 
   const [errors, setErrors] = useState<
-    Partial<Record<keyof LoginForm, string>>
+    Partial<Record<keyof LoginInput, string>>
   >({});
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleChange = (field: keyof LoginForm, value: string) => {
+  const handleChange = (field: keyof LoginInput, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
 
     setErrors((prev) => (prev[field] ? { ...prev, [field]: "" } : prev));
@@ -35,10 +32,10 @@ export default function Login() {
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const result = loginSchema.safeParse(form);
+    const result = loginInputSchema.safeParse(form);
 
     if (!result.success) {
-      setErrors(mapZodErrors<LoginForm>(result.error.issues));
+      setErrors(mapZodErrors<LoginInput>(result.error.issues));
       return;
     }
 

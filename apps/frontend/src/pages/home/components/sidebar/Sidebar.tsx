@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { CreateDirectChatButton } from "@/pages/home/components/sidebar/CreateDirectChatButton";
 import { CreateGroupChatButton } from "@/pages/home/components/sidebar/CreateGroupChatButton";
+import type { ConversationDTO, UserDTO } from "@realtime-chat-app/shared";
 
 interface SidebarProps {
-  conversations: Conversation[];
-  currentUser: User;
+  conversations: ConversationDTO[];
+  currentUser: UserDTO;
   activeConversationId?: string;
 }
 
