@@ -1,3 +1,3 @@
 export const MESSAGE_EVENTS = {
-  CREATED: "message_created",
+  CREATED: "message:created",
 } as const;

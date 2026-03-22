@@ -12,12 +12,10 @@ export function MessageBubble({
   conversation,
   currentUserId,
 }: MessageBubbleProps) {
-  const sender = conversation.participants.find(
-    (p) => p.user.id === message.senderId,
-  )?.user;
+  const sender = message.sender;
 
   const avatar = sender?.profileImage ?? undefined;
-  const displayName = sender?.displayName ?? "Unknown";
+  const displayName = sender?.displayName ?? "Unknown participant";
 
   const fromMe = message.senderId === currentUserId;
 

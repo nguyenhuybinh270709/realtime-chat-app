@@ -15,8 +15,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { getConversationDisplayInfo } from "@/utils/conversation";
-import { useDeleteGroupConversation } from "@/hooks/mutations/useDeleteGroupConversation";
+import { useDeleteGroup } from "@/hooks/mutations/useDeleteGroup";
 import type { ConversationDTO } from "@realtime-chat-app/shared";
+import { useLeaveGroup } from "@/hooks/mutations/useLeaveGroup";
 
 interface ConversationInfoProps {
   conversation: ConversationDTO;
@@ -29,15 +30,16 @@ export function ConversationInfo({
   currentUserId,
   onClose,
 }: ConversationInfoProps) {
-  const { mutate, isPending } = useDeleteGroupConversation();
+  const { mutate: deleteGroup, isPending: isDeleting } = useDeleteGroup();
+  const { mutate: leaveGroup, isPending: isLeaving } = useLeaveGroup();
 
-  const { otherUser, isGroup, displayName, avatar } =
+  const { otherParticipant, isGroup, displayName, avatar } =
     getConversationDisplayInfo(conversation, currentUserId);
 
-  const isOwner = conversation.participants.find(
-    (participant) =>
-      participant.user.id === currentUserId && participant.role === "owner",
+  const currentUserParticipant = conversation.participants.find(
+    (participant) => participant.user.id === currentUserId,
   );
+  const isOwner = currentUserParticipant?.role === "owner";
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -120,7 +122,7 @@ export function ConversationInfo({
               <h3 className="text-md font-bold ml-1">Bio:</h3>
               <div className="mt-1 bg-muted/30 p-4 rounded-xl border">
                 <p className="text-sm text-muted-foreground">
-                  {otherUser?.user.bio ?? "No bio yet"}
+                  {otherParticipant?.user.bio ?? "No bio yet"}
                 </p>
               </div>
             </div>
@@ -130,6 +132,48 @@ export function ConversationInfo({
 
           {/* Actions */}
           <div className="w-full space-y-1">
+            {/* Leave Action */}
+            {isGroup && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                  >
+                    Leave group
+                  </Button>
+                </AlertDialogTrigger>
+                {/* Confirmation Dialog */}
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Leave this group?</AlertDialogTitle>
+
+                    <AlertDialogDescription>
+                      {isOwner
+                        ? "As the owner, leaving will transfer ownership to the next member. Are you sure you want to leave this group?"
+                        : "Are you sure you want to leave this group?"}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  {/* Dialog Actions */}
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      className="cursor-pointer"
+                      disabled={isLeaving}
+                    >
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => leaveGroup(conversation.id)}
+                      className="bg-destructive! hover:bg-destructive/80! cursor-pointer"
+                      disabled={isLeaving}
+                    >
+                      {isLeaving ? "Leaving..." : "Leave"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+
             {/* Delete Action */}
             {isOwner && (
               <AlertDialog>
@@ -138,35 +182,33 @@ export function ConversationInfo({
                     variant="ghost"
                     className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                   >
-                    Delete conversation
+                    Delete group
                   </Button>
                 </AlertDialogTrigger>
                 {/* Confirmation Dialog */}
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Delete this conversation?
-                    </AlertDialogTitle>
+                    <AlertDialogTitle>Delete this group?</AlertDialogTitle>
 
                     <AlertDialogDescription>
-                      This action cannot be undone. All messages in this
-                      conversation will be permanently removed.
+                      This action cannot be undone. All messages in this group
+                      will be permanently removed.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   {/* Dialog Actions */}
                   <AlertDialogFooter>
                     <AlertDialogCancel
                       className="cursor-pointer"
-                      disabled={isPending}
+                      disabled={isDeleting}
                     >
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={() => mutate(conversation.id)}
+                      onClick={() => deleteGroup(conversation.id)}
                       className="bg-destructive! hover:bg-destructive/80! cursor-pointer"
-                      disabled={isPending}
+                      disabled={isDeleting}
                     >
-                      {isPending ? "Deleting..." : "Delete"}
+                      {isDeleting ? "Deleting..." : "Delete"}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

@@ -1,12 +1,12 @@
 import { getApiErrorMessage } from "@/lib/apiError";
 import { queryClient } from "@/lib/queryClient";
-import { deleteGroupConversationAPI } from "@/services/conversation.service";
+import { deleteGroupAPI } from "@/services/conversation.service";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export const useDeleteGroupConversation = () => {
+export const useDeleteGroup = () => {
   return useMutation({
-    mutationFn: deleteGroupConversationAPI,
+    mutationFn: deleteGroupAPI,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["conversations"],

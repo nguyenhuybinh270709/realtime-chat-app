@@ -1,3 +1,3 @@
 export const USER_EVENTS = {
-  JOIN: "join_user",
+  JOIN: "user:join",
 } as const;

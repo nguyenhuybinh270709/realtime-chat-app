@@ -1,8 +1,9 @@
 import {
   createConversationService,
-  deleteGroupConversationService,
+  deleteGroupService,
   getConversationByIdService,
   getConversationsService,
+  leaveGroupService,
 } from "@/services/conversation.service";
 import type { NextFunction, Request, Response } from "express";
 
@@ -59,7 +60,7 @@ export const getConversationById = async (
   }
 };
 
-export const deleteGroupConversation = async (
+export const deleteGroup = async (
   req: Request<{ conversationId: string }>,
   res: Response,
   next: NextFunction,
@@ -68,11 +69,28 @@ export const deleteGroupConversation = async (
     const { conversationId } = req.params;
     const currentUserId = req.user!.id;
 
-    await deleteGroupConversationService(conversationId, currentUserId);
+    await deleteGroupService(conversationId, currentUserId);
 
     return res
       .status(200)
       .json({ message: "Conversation deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const leaveGroup = async (
+  req: Request<{ conversationId: string }>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { conversationId } = req.params;
+    const currentUserId = req.user!.id;
+
+    await leaveGroupService(conversationId, currentUserId);
+
+    return res.status(200).json({ message: "Left group successfully" });
   } catch (error) {
     next(error);
   }

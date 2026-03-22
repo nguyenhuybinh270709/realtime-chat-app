@@ -1,8 +1,5 @@
 // Socket
-export * from "./socket/events";
+export * from "./socket";
 
 // Schemas
-export * from "./schemas/user";
-export * from "./schemas/auth";
-export * from "./schemas/conversation";
-export * from "./schemas/message";
+export * from "./schemas";

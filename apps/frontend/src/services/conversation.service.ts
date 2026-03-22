@@ -23,9 +23,16 @@ export const createConversationAPI = async (
   return res.data;
 };
 
-export const deleteGroupConversationAPI = async (
+export const deleteGroupAPI = async (
   conversationId: string,
 ): Promise<{ message: string }> => {
   const res = await api.delete(`/conversations/${conversationId}`);
+  return res.data;
+};
+
+export const leaveGroupAPI = async (
+  conversationId: string,
+): Promise<{ message: string }> => {
+  const res = await api.post(`/conversations/${conversationId}/leave`);
   return res.data;
 };

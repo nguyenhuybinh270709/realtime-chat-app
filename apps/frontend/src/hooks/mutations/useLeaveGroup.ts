@@ -1,15 +1,15 @@
 import { getApiErrorMessage } from "@/lib/apiError";
 import { queryClient } from "@/lib/queryClient";
-import { createMessageAPI } from "@/services/message.service";
+import { leaveGroupAPI } from "@/services/conversation.service";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export const useCreateMessage = (conversationId: string) => {
+export const useLeaveGroup = () => {
   return useMutation({
-    mutationFn: createMessageAPI,
+    mutationFn: leaveGroupAPI,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["messages", conversationId],
+        queryKey: ["conversations"],
       });
     },
     onError: (error) => {

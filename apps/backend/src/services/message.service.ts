@@ -1,7 +1,10 @@
 import { createError } from "@/errors/app.error";
 import { prisma } from "@/lib/prisma";
 import { getIO } from "@/lib/socket";
+import { userSelect } from "@/types/user";
 import {
+  createConversationUpdatedPayload,
+  lastMessageUpdatedAction,
   messageDtoSchema,
   SOCKET_EVENTS,
   type MessageDTO,
@@ -15,6 +18,7 @@ export const createMessageService = async (
   const isParticipant = await prisma.conversationParticipant.findFirst({
     where: { conversationId: conversationId, userId: senderId },
   });
+
   if (!isParticipant) {
     throw createError(403, "You are not in this conversation");
   }
@@ -28,11 +32,7 @@ export const createMessageService = async (
       },
       include: {
         sender: {
-          select: {
-            id: true,
-            displayName: true,
-            profileImage: true,
-          },
+          select: userSelect,
         },
       },
     });
@@ -49,20 +49,30 @@ export const createMessageService = async (
   });
 
   const participants = await prisma.conversationParticipant.findMany({
-    where: { conversationId },
+    where: { conversationId: conversationId },
     select: { userId: true },
   });
 
-  getIO().to(conversationId).emit(SOCKET_EVENTS.MESSAGE.CREATED, message);
+  const io = getIO();
+
+  const parsedMessage = messageDtoSchema.parse(message);
+
+  io.to(conversationId).emit(SOCKET_EVENTS.MESSAGE.CREATED, parsedMessage);
+
+  const payload = createConversationUpdatedPayload({
+    conversationId: conversationId,
+    actions: [
+      lastMessageUpdatedAction({
+        lastMessagePreview: message.body,
+        lastMessageAt: message.createdAt,
+      }),
+    ],
+  });
   participants.forEach((participant) => {
-    getIO().to(participant.userId).emit(SOCKET_EVENTS.CONVERSATION.UPDATED, {
-      conversationId,
-      lastMessagePreview: message.body,
-      lastMessageAt: message.createdAt,
-    });
+    io.to(participant.userId).emit(SOCKET_EVENTS.CONVERSATION.UPDATED, payload);
   });
 
-  return messageDtoSchema.parse(message);
+  return parsedMessage;
 };
 
 export const getMessagesService = async (
@@ -85,12 +95,7 @@ export const getMessagesService = async (
     },
     include: {
       sender: {
-        select: {
-          id: true,
-          username: true,
-          displayName: true,
-          profileImage: true,
-        },
+        select: userSelect,
       },
     },
     orderBy: {

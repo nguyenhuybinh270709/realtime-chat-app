@@ -9,7 +9,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ conversationId }: ChatInputProps) {
-  const { mutate, isPending } = useCreateMessage();
+  const { mutate, isPending } = useCreateMessage(conversationId);
 
   const [message, setMessage] = useState("");
 
