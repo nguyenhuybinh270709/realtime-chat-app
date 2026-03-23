@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatMessageTime } from "@/utils/formatMessageTime";
 import type { ConversationDTO, MessageDTO } from "@realtime-chat-app/shared";
 
 interface MessageBubbleProps {
@@ -51,6 +52,11 @@ export function MessageBubble({
           }`}
         >
           {message.body}
+        </div>
+
+        {/* Time */}
+        <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
+          <span>{formatMessageTime(message.createdAt)}</span>
         </div>
       </div>
     </div>
