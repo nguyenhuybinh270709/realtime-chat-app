@@ -6,15 +6,15 @@ import Login from "@/pages/login/Login";
 import AppLoader from "@/components/AppLoader";
 import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 import { useSocketConnection } from "@/hooks/socket/useSocketConnection";
-import { useSocketUser } from "@/hooks/socket/useSocketUser";
+import { useUserStatus } from "@/hooks/socket/useUserStatus";
 
 function App() {
   const { data: currentUser, isLoading } = useGetCurrentUser();
 
   const isAuthenticated = Boolean(currentUser);
 
-  useSocketConnection(isAuthenticated);
-  useSocketUser(currentUser?.id);
+  useSocketConnection(isAuthenticated, currentUser?.id);
+  useUserStatus();
 
   if (isLoading) {
     return <AppLoader />;

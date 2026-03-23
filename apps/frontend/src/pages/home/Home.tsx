@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Sidebar } from "@/pages/home/components/sidebar/Sidebar";
-import { ConversationInfo } from "@/pages/home/components/info/ConversationInfo";
+import { ConversationInfo } from "@/pages/home/components/conversation-details/ConversationInfo";
 import { useGetConversations } from "@/hooks/queries/useGetConversations";
 import { useGetCurrentUser } from "@/hooks/queries/useGetCurrentUser";
 import { ChatMain } from "@/pages/home/components/chat-main/ChatMain";
-import { NoConversationSelected } from "@/pages/home/components/chat-main/NoConversationSelected";
+import { NoConversationSelected } from "@/pages/home/components/chat-main/components/NoConversationSelected";
 import AppLoader from "@/components/AppLoader";
 import { useSocketConversation } from "@/hooks/socket/useSocketConversation";
 

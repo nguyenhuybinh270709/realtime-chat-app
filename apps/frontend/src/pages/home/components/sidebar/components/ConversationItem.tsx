@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUserStatusStore } from "@/store/userStatus.store";
 import { getConversationDisplayInfo } from "@/utils/conversation";
 import { formatMessageTime } from "@/utils/formatMessageTime";
 import type { ConversationDTO } from "@realtime-chat-app/shared";
@@ -16,6 +17,15 @@ export const ConversationItem = ({
   active,
   onClick,
 }: ConversationItemProps) => {
+  const otherParticipant = conversation.participants.find(
+    (participants) => participants.user.id !== currentUserId,
+  );
+  const otherUserId = otherParticipant?.user.id;
+  const status = useUserStatusStore((s) =>
+    otherUserId ? s.userStatus.get(otherUserId) : undefined,
+  );
+  const isOnline = Boolean(status?.isOnline);
+
   const { avatar, displayName } = getConversationDisplayInfo(
     conversation,
     currentUserId,
@@ -28,12 +38,22 @@ export const ConversationItem = ({
       onClick={onClick}
     >
       {/* Conversation Image */}
-      <Avatar className="h-12 w-12 border">
-        <AvatarImage src={avatar} alt={displayName} />
-        <AvatarFallback>
-          {displayName?.charAt(0)?.toUpperCase() ?? "?"}
-        </AvatarFallback>
-      </Avatar>
+      <div className="relative inline-block">
+        <Avatar className="h-12 w-12 border">
+          <AvatarImage src={avatar} alt={displayName} />
+          <AvatarFallback>
+            {displayName?.charAt(0)?.toUpperCase() ?? "?"}
+          </AvatarFallback>
+        </Avatar>
+        {/* Online/Offline status */}
+        {!conversation.isGroup && (
+          <span
+            className={`absolute bottom-0 right-0 block h-3 w-3 rounded-full border-2 border-white dark:border-slate-950 ${
+              isOnline ? "bg-green-500" : "bg-slate-500"
+            }`}
+          />
+        )}
+      </div>
 
       {/* Conversation Content */}
       <div className="min-w-0 overflow-hidden">

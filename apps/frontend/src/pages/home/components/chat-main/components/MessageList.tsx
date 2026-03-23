@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageBubble } from "@/pages/home/components/chat-main/MessageBubble";
+import { MessageBubble } from "@/pages/home/components/chat-main/components/MessageBubble";
 import type { ConversationDTO, MessageDTO } from "@realtime-chat-app/shared";
 
 interface MessageListProps {

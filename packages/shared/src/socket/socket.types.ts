@@ -24,6 +24,11 @@ export interface ServerToClientEvents {
 
   // Message
   [SOCKET_EVENTS.MESSAGE.CREATED]: (payload: MessageDTO) => void;
+
+  // User
+  [SOCKET_EVENTS.USER.ONLINE]: (payload: { userId: string }) => void;
+  [SOCKET_EVENTS.USER.OFFLINE]: (payload: { userId: string }) => void;
+  [SOCKET_EVENTS.USER.ONLINE_LIST]: (payload: { users: string[] }) => void;
 }
 
 export interface ClientToServerEvents {

@@ -2,29 +2,31 @@ import { useEffect } from "react";
 import { socket } from "@/lib/socket";
 import { SOCKET_EVENTS } from "@realtime-chat-app/shared";
 
-export const useSocketConnection = (isAuthenticated: boolean) => {
+export const useSocketConnection = (
+  isAuthenticated: boolean,
+  userId?: string,
+) => {
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !userId) {
       socket.disconnect();
       return;
     }
 
-    socket.connect();
+    if (!socket.connected) {
+      socket.connect();
+    } else {
+      socket.emit(SOCKET_EVENTS.USER.JOIN, userId);
+    }
 
     const handleConnect = () => {
       console.log("Socket connected:", socket.id);
-    };
-
-    const handleDisconnect = () => {
-      console.log("Socket disconnected");
+      socket.emit(SOCKET_EVENTS.USER.JOIN, userId);
     };
 
     socket.on(SOCKET_EVENTS.BASE.CONNECT, handleConnect);
-    socket.on(SOCKET_EVENTS.BASE.DISCONNECT, handleDisconnect);
 
     return () => {
       socket.off(SOCKET_EVENTS.BASE.CONNECT, handleConnect);
-      socket.off(SOCKET_EVENTS.BASE.DISCONNECT, handleDisconnect);
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, userId]);
 };

@@ -18,6 +18,8 @@ import { getConversationDisplayInfo } from "@/utils/conversation";
 import { useDeleteGroup } from "@/hooks/mutations/useDeleteGroup";
 import type { ConversationDTO } from "@realtime-chat-app/shared";
 import { useLeaveGroup } from "@/hooks/mutations/useLeaveGroup";
+import { useUserStatusStore } from "@/store/userStatus.store";
+import { ParticipantItem } from "@/pages/home/components/conversation-details/components/ParticipantItem";
 
 interface ConversationInfoProps {
   conversation: ConversationDTO;
@@ -35,6 +37,12 @@ export function ConversationInfo({
 
   const { otherParticipant, isGroup, displayName, avatar } =
     getConversationDisplayInfo(conversation, currentUserId);
+
+  const otherUserId = otherParticipant?.user.id;
+  const status = useUserStatusStore((s) =>
+    otherUserId ? s.userStatus.get(otherUserId) : undefined,
+  );
+  const isOnline = Boolean(status?.isOnline);
 
   const currentUserParticipant = conversation.participants.find(
     (participant) => participant.user.id === currentUserId,
@@ -62,15 +70,29 @@ export function ConversationInfo({
       <ScrollArea className="flex-1 min-h-0">
         <div className="p-6 flex flex-col items-center">
           {/* Conversation Profile */}
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={avatar} />
-            <AvatarFallback>
-              {displayName?.charAt(0)?.toUpperCase() ?? "?"}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative inline-block">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={avatar} alt={displayName} />
+              <AvatarFallback>
+                {displayName?.charAt(0)?.toUpperCase() ?? "?"}
+              </AvatarFallback>
+            </Avatar>
+            {/* Online/Offline status */}
+            {!conversation.isGroup && (
+              <span
+                className={`absolute bottom-0 right-0 block h-6 w-6 rounded-full border-2 border-white dark:border-slate-950 ${
+                  isOnline ? "bg-green-500" : "bg-slate-500"
+                }`}
+              />
+            )}
+          </div>
 
-          <h2 className="mt-4 text-lg font-semibold">{displayName}</h2>
-          {!isGroup && <p className="text-sm text-muted-foreground">Offline</p>}
+          <h2 className="mt-4 text-xl font-semibold">{displayName}</h2>
+          {!isGroup && (
+            <p className="text-sm text-muted-foreground">
+              {isOnline ? "Online" : "Offline"}
+            </p>
+          )}
 
           {isGroup ? (
             // Participants for group
@@ -84,35 +106,11 @@ export function ConversationInfo({
 
               <div className="space-y-2">
                 {conversation.participants.map((participant) => (
-                  <div
+                  <ParticipantItem
                     key={participant.user.id}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition"
-                  >
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage
-                        src={participant.user.profileImage ?? undefined}
-                      />
-                      <AvatarFallback>
-                        {participant.user.displayName
-                          ?.charAt(0)
-                          ?.toUpperCase() ?? "?"}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex flex-col">
-                      <p className="text-sm font-medium">
-                        {participant.user.displayName ?? "Unknown"}
-                        {participant.user.id === currentUserId && (
-                          <span className="ml-1 text-xs text-muted-foreground">
-                            (Me)
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {participant.role}
-                      </p>
-                    </div>
-                  </div>
+                    participant={participant}
+                    currentUserId={currentUserId}
+                  />
                 ))}
               </div>
             </div>

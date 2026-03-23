@@ -1,10 +1,10 @@
-import { UserMenu } from "@/pages/home/components/sidebar/UserMenu";
-import { ConversationList } from "./ConversationList";
+import { UserMenu } from "@/pages/home/components/sidebar/components/UserMenu";
+import { ConversationList } from "./components/ConversationList";
 import { MessagesSquare, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { CreateDirectChatButton } from "@/pages/home/components/sidebar/CreateDirectChatButton";
-import { CreateGroupChatButton } from "@/pages/home/components/sidebar/CreateGroupChatButton";
+import { CreateDirectChatButton } from "@/pages/home/components/sidebar/components/CreateDirectChatButton";
+import { CreateGroupChatButton } from "@/pages/home/components/sidebar/components/CreateGroupChatButton";
 import type { ConversationDTO, UserDTO } from "@realtime-chat-app/shared";
 
 interface SidebarProps {

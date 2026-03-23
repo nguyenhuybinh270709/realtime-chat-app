@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { ChatMainHeader } from "./ChatMainHeader";
-import { MessageList } from "./MessageList";
-import { ChatInput } from "./ChatInput";
+import { ChatMainHeader } from "./components/ChatMainHeader";
+import { MessageList } from "./components/MessageList";
+import { ChatInput } from "./components/ChatInput";
 import { MessageSquarePlus } from "lucide-react";
 import { useGetConversationById } from "@/hooks/queries/useGetConversationById";
 import AppLoader from "@/components/AppLoader";
-import { ConversationNotFound } from "@/pages/home/components/chat-main/ConversationNotFound";
+import { ConversationNotFound } from "@/pages/home/components/chat-main/components/ConversationNotFound";
 import { useGetMessages } from "@/hooks/queries/useGetMessages";
 import { useSocketMessage } from "@/hooks/socket/useSocketMessage";
 
