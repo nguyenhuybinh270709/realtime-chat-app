@@ -9,3 +9,6 @@ build/
 .env
 
 *.tsbuildinfo
+
+# turborepo cache
+.turbo
