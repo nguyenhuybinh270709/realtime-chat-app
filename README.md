@@ -2,6 +2,10 @@
 
 ### A realtime chat application that supports 1-1 and group messaging with instant data synchronization, user authentication, and role-based access control.
 
+## Screenshots
+<img width="1920" height="1077" alt="image" src="https://github.com/user-attachments/assets/21ff3eb3-d944-4148-ab99-a2c71c5235f2" />
+
+
 ## Features
 
 ### UI
