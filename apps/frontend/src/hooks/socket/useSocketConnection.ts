@@ -19,7 +19,6 @@ export const useSocketConnection = (
     }
 
     const handleConnect = () => {
-      console.log("Socket connected:", socket.id);
       socket.emit(SOCKET_EVENTS.USER.JOIN, userId);
     };
 

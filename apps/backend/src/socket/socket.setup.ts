@@ -9,15 +9,11 @@ import {
 
 export const setupSocket = (io: Server) => {
   io.on("connection", (socket: Socket) => {
-    console.log("User connected: ", socket.id);
-
     socket.on(SOCKET_EVENTS.USER.JOIN, (userId: string) => {
       if (!userId) return;
 
       socket.join(userId);
       addOnlineUser(userId, socket.id);
-
-      console.log("User joined: ", userId);
 
       socket.emit(SOCKET_EVENTS.USER.ONLINE_LIST, {
         users: getOnlineUsers(),
@@ -29,8 +25,6 @@ export const setupSocket = (io: Server) => {
     conversationSocketHandler(socket);
 
     socket.on(SOCKET_EVENTS.BASE.DISCONNECT, () => {
-      console.log("User disconnected: ", socket.id);
-
       const result = removeOnlineUser(socket.id);
       if (!result) return;
 
